@@ -1,0 +1,10 @@
+{
+    "name": "cvgen/cvgen",
+    "require-dev": {
+        "symfony/var-dumper": "^6.2"
+    },
+    "require": {
+        "dompdf/dompdf": "^2.0",
+        "php-ffmpeg/php-ffmpeg": "^1.1"
+    }
+}
