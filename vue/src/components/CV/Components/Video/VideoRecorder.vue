@@ -2,8 +2,8 @@
   <div>
     <video ref="videoElement" width="640" height="480" autoplay muted></video>
     <div>
-      <button v-if="!isRecording" @click.prevent="startRecording">Start Recording</button>
-      <button v-if="isRecording" @click.prevent="stopRecording">Stop Recording</button>
+      <Button v-if="!isRecording" @click.prevent="startRecording" :label="data.translations.startRecording" icon="pi pi-video"/>
+      <Button v-else @click.prevent="() => stopRecording(true)" :label="data.translations.stopRecording" icon="pi pi-video"/>
     </div>
     <p v-if="isRecording">Recording: {{ elapsedTime }}</p>
   </div>
@@ -11,6 +11,7 @@
 
 <script>
 import RecordRTC from 'recordrtc';
+import Button from "primevue/button";
 
 export default {
   props: {
@@ -18,6 +19,9 @@ export default {
       type: Object,
       required: true
     }
+  },
+  components: {
+    Button
   },
   data() {
     return {
@@ -33,6 +37,9 @@ export default {
     this.$refs.videoElement.srcObject = this.mediaStream;
   },
   emits: ["recording-uploaded-successfully"],
+  beforeUnmount() {
+    this.stopRecording()
+  },
   methods: {
     async startRecording() {
       navigator.mediaDevices.getUserMedia({
@@ -51,26 +58,42 @@ export default {
         }, 1000);
       });
     },
-    async stopRecording() {
+    async stopRecording(shouldUpload = false) {
       if (this.recorder) {
         this.recorder.stopRecording(async () => {
           const webmBlob = this.recorder.getBlob();
           const theFile = new File([webmBlob], 'video.webm', { type: 'video/webm' });
-          this.$store.dispatch('uploadVideo', {apiUrl: this.data.api.upload_video, theFile: theFile})
-              .then(res => {
-                if (res.data.status === 'ok') {
-                  this.$emit('recording-uploaded-successfully');
-                  this.mediaStream.getTracks().forEach((track) => track.stop());
-                  this.$refs.videoElement.srcObject = null;
-                  this.recorder = null;
-                }
-              })
           this.isRecording = false;
           clearInterval(this.intervalId);
           this.elapsedTime = 0;
+          if (shouldUpload) {
+            this.$store.dispatch('uploadVideo', {apiUrl: this.data.api.upload_video, theFile: theFile})
+                .then(res => {
+                  if (res.data.status === 'ok') {
+                    this.$emit('recording-uploaded-successfully');
+                    this.stopTracksAndReset()
+                  }
+                })
+          } else {
+            this.stopTracksAndReset();
+          }
         });
+      } else {
+        this.stopTracksAndReset();
       }
     },
+    stopTracksAndReset() {
+      if (this.mediaStream) {
+        this.mediaStream.getTracks().forEach((track) => {
+          track.stop();
+          this.mediaStream.removeTrack(track);
+        });
+      }
+      if (this.$refs.videoElement) {
+        this.$refs.videoElement.srcObject = null;
+      }
+      this.recorder = null;
+    }
   },
 };
 </script>

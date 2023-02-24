@@ -8,7 +8,7 @@
     <Button @click="setAction('videorecorder')" class="ml-2" :label="data.translations.recordVideo" icon="pi pi-video" />
   </div>
   <div v-else>
-    <Button @click="setAction('videoplayer')" :label="data.translations.viewVideo" icon="pi pi-video" />
+    <Button type="button" @click="setAction('videoplayer')" :label="data.translations.viewVideo" icon="pi pi-video" />
   </div>
 </template>
 

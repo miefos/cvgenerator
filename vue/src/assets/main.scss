@@ -46,8 +46,11 @@
   }
 
 
-  // video player
+  .p-progressbar {
+    height: 6px !important;
+  }
 
+  // video player
   .vjs-theme-city {
     --vjs-theme-city--primary: #bf3b4d;
     --vjs-theme-city--secondary: #fff;

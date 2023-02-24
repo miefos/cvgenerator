@@ -162,8 +162,8 @@ const store = new Vuex.Store({
         dispatch('setWaitingForResponse', true);
         axios.delete(apiUrl)
         .then(response => {
-            commit('setResponse', response)
             dispatch('setUserHasVideo', false)
+            commit('setResponse', response)
             resolve(response)
           })
         .catch(error => console.log("Error updating"))
