@@ -17,7 +17,7 @@
   </div>
 
   <!-- Thumbnail -->
-  <div class="my-4" v-if="action === 'videoplayer'" >
+  <div class="my-4" v-if="action === 'videoplayer' && userHasVideo" >
     {{ data.translations.thumbnail }}
     <div class="flex">
         <img width="300" :src="data.api.get_thumbnail + '?t=' + new Date()" class="rounded-circle" />
