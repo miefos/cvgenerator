@@ -524,7 +524,7 @@ class CVPostType {
                     'removeVideo' => __('Delete video', 'cv-generator'),
                     'uploadVideo' => __('Upload video', 'cv-generator'),
                     'recordVideo' => __('Record new video', 'cv-generator'),
-                    'noVideo' => __('You do not have a video uploaded or recorder', 'cv-generator'),
+                    'noVideo' => __('You do not have video uploaded or recorder', 'cv-generator'),
                     'viewVideo' => __('Back', 'cv-generator'),
                     'startRecording' => __('Start recording', 'cv-generator'),
                     'stopRecording' => __('Stop recording', 'cv-generator'),
