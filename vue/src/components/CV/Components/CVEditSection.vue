@@ -11,7 +11,7 @@
           <div class="mb-4" v-for="field in section.fields" :key="field.id">
             <MyField :field="{...field}" :data="{...data}" :section="{...section}" />
           </div>
-          <div class="flex gap-2">
+          <div class="flex gap-2" v-if="section.save_button">
             <MyButton :submit-button="true" :label="data.translations.submit" btn-internal-id="my-save-button-1" />
             <MyButton v-if="notLastSection()" @pressed="(e) => saveForm(e, true)" :label="data.translations.submit_and_continue" btn-internal-id="my-save-button-2" />
           </div>

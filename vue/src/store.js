@@ -174,7 +174,24 @@ const store = new Vuex.Store({
     },
     setUserHasVideo({state,commit}, userHasVideo) {
       state.userHasVideo = userHasVideo;
-    }
+    },
+    setThumbnailFromSeconds({state,commit,dispatch}, {time, apiUrl}) {
+      return new Promise((resolve, reject) => {
+        dispatch('setWaitingForResponse', true);
+        axios.post(apiUrl, {time: time})
+          .then(response => {
+            commit('setResponse', response)
+            resolve(response)
+          })
+          .catch(error => {
+            console.log("Error updating")
+            reject(error)
+          })
+          .finally((response) => {
+            dispatch('setStatusReceivedResponse')
+          })
+      })
+    },
     // resetResponseAndErrors({state,commit}) {
     //   state.response = null
     //   state.errors = {}

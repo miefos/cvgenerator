@@ -1,5 +1,7 @@
 <?php
 
+use FFMpeg\Coordinate\TimeCode;
+
 require_once "PDFCV.php";
 require_once "helpers.php";
 
@@ -11,12 +13,15 @@ class CVPostType {
 
         $this->nonce_name = 'wp_rest';
 
+		$this->thumbnail_filename = "thumbnail.jpeg";
+
 		$this->sections = array(
             // section 1
             [
                 'label' => __('Personal information', 'cv-generator'),
                 'id' => 'section_personal_information',
 //                'path' => 'personal_information',
+                'save_button' => true,
                 'icon' => 'pi-user',
                 'fields' => [
 	                [ 'label' => 'Name', 'id' => 'field_name', 'type' => 'text', 'validation' => ['required'] ],
@@ -35,6 +40,7 @@ class CVPostType {
               'label' => __('Languages', 'cv-generator'),
               'id' => 'section_languages',
 //              'path' => 'languages',
+              'save_button' => true,
               'icon' => 'pi-flag',
               'fields' => [
 	              [
@@ -61,6 +67,7 @@ class CVPostType {
               'label' => __('Work experience', 'cv-generator'),
               'id' => 'section_work_experience',
 //              'path' => 'work_experience',
+              'save_button' => true,
               'icon' => 'pi-briefcase',
               'fields' => [
 	              [
@@ -84,6 +91,7 @@ class CVPostType {
 				'label' => __('Education', 'cv-generator'),
                 'id' => 'section_education',
 //				'path' => 'education',
+				'save_button' => true,
 				'icon' => 'pi-server',
 				'fields' => [
 					[
@@ -105,6 +113,7 @@ class CVPostType {
 				'label' => __('Video', 'cv-generator'),
 				'id' => 'section_video',
 //				'path' => 'video',
+                'save_button' => false,
 				'icon' => 'pi-video',
                 'fields' => [
                         [
@@ -123,6 +132,9 @@ class CVPostType {
           'upload_video' => ['cv_generator/cvpost/', 'upload_video'],
           'get_video' => ['cv_generator/cvpost/', 'get_video'],
           'remove_video' => ['cv_generator/cvpost/', 'remove_video'],
+//          'upload_thumbnail' => ['cv_generator/cvpost/', 'upload_thumbnail'],
+          'get_thumbnail' => ['cv_generator/cvpost/', 'get_thumbnail'],
+          'set_thumbnail_by_video_second' => ['cv_generator/cvpost/', 'set_thumbnail_by_video_second'],
         ];
 
 		add_action( 'rest_api_init', function () {
@@ -155,7 +167,103 @@ class CVPostType {
 				'callback'        => [ $this, 'api_remove_video' ],
 				'current_user_id' => get_current_user_id(), // This will be pass to the rest API callback
 			));
+
+//			register_rest_route($this->api['upload_thumbnail'][0], $this->api['upload_thumbnail'][1], array(
+//				'methods'         => 'POST',
+//				'callback'        => [ $this, 'api_upload_thumbnail' ],
+//				'current_user_id' => get_current_user_id(), // This will be pass to the rest API callback
+//			));
+
+			register_rest_route($this->api['get_thumbnail'][0], $this->api['get_thumbnail'][1], array(
+				'methods'         => 'GET',
+				'callback'        => [ $this, 'api_get_thumbnail' ],
+				'current_user_id' => get_current_user_id(), // This will be pass to the rest API callback
+			));
+
+			register_rest_route($this->api['set_thumbnail_by_video_second'][0], $this->api['set_thumbnail_by_video_second'][1], array(
+				'methods'         => 'POST',
+				'callback'        => [ $this, 'api_set_thumbnail_by_video_second' ],
+				'current_user_id' => get_current_user_id(), // This will be pass to the rest API callback
+			));
+
         });
+    }
+
+    public function api_get_thumbnail($data) {
+	    $current_user_id = intval( $data->get_attributes()['current_user_id'] ); // !! this comes from php not js
+	    if ( ! $current_user_id ) {
+		    wp_die( 'You should be logged in!' );
+	    }
+	    $unique_media_id  = get_user_meta( $current_user_id, 'cv_generator_media_folder_id', true );
+	    $path = CVGEN_PLUGIN_DIR . '/uploads/video/' . $unique_media_id . '/' . $this->thumbnail_filename;
+
+	    if ( ! file_exists( $path ) ) {
+		    return false;
+	    }
+
+	    if (!file_exists($path)) {
+		    // Return a 404 error if the file does not exist
+		    http_response_code(404);
+		    die('Not Found');
+	    }
+	    $mime_type = mime_content_type($path);
+	    header('Content-Type: ' . $mime_type);
+	    header('Content-Length: ' . filesize($path));
+	    readfile($path);
+	    exit;
+    }
+
+//    public function api_upload_thumbnail($data) {
+//
+//    }
+
+    public function api_set_thumbnail_by_video_second($data) {
+        try {
+	        $current_user_id = intval( $data->get_attributes()['current_user_id'] ); // !! this comes from php not js
+	        if ( ! $current_user_id ) {
+		        wp_die( 'You should be logged in!' );
+	        }
+	        $uniq_video_id  = get_user_meta( $current_user_id, 'cv_generator_media_folder_id', true );
+	        $video_filename = get_user_meta( $current_user_id, 'cv_generator_video_filename', true );
+	        if ( ! $uniq_video_id ) {
+		        return null;
+	        }
+
+	        $path = CVGEN_PLUGIN_DIR . '/uploads/video/' . $uniq_video_id . '/' . $video_filename;
+
+	        if ( ! file_exists( $path ) ) {
+		        return false;
+	        }
+
+            // check if post variable with time exists and validate it is a float, then round it to 2 decimal places.
+            $time = $data->get_json_params()['time'] ?? 0;
+            if ( empty($time) || !is_numeric( $time ) || $time < 0) {
+	            return ['status' => "fail", 'msg' => __('Some error happened during saving thumbnail! Time not set.', 'cv_generator')];
+            }
+
+            $this->create_thumbnail($time, $path);
+
+        } catch ( \Exception $e ) {
+	        return ['status' => "fail", 'msg' => __('Some error happened during saving thumbnail!', 'cv_generator')];
+        }
+
+	    return ['status' => "ok", 'msg' => __('Thumbnail saved!', 'cv_generator')];
+    }
+
+    public function create_thumbnail($time, $video_path) {
+	    $time = round($time, 2);
+
+	    // i want that ffmpeg extract image of the second $n and save it in the same folder with image name thumbnail.jpeg or png. I would like to use OOP approach
+	    $ffmpeg = FFMpeg\FFMpeg::create();
+	    $video  = $ffmpeg->open( $video_path );
+
+	    // Set the time code to extract the thumbnail from
+	    $timecode = TimeCode::fromSeconds( $time );
+
+	    // Extract the thumbnail
+	    $frame         = $video->frame( $timecode );
+	    $thumbnailPath = dirname( $video_path ) . '/' . $this->thumbnail_filename; // Change the extension to png if you prefer
+	    $frame->save( $thumbnailPath );
     }
 
     public function api_remove_video($data) {
@@ -277,63 +385,51 @@ class CVPostType {
 			$uploadDir = $baseDir . $uniq_id . "/";
 		} while (file_exists($uploadDir));
 
-		// Check that the request is a POST request
-		if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-			// Check if a file was uploaded
-			if (isset($_FILES['video']) && $_FILES['video']['error'] === UPLOAD_ERR_OK) {
-				// Get the file extension
-				$fileExtension = pathinfo($_FILES['video']['name'], PATHINFO_EXTENSION);
+        // Check if a file was uploaded
+        if (isset($_FILES['video']) && $_FILES['video']['error'] === UPLOAD_ERR_OK) {
+            // Get the file extension
+            $fileExtension = pathinfo($_FILES['video']['name'], PATHINFO_EXTENSION);
 
-				// Check if the file extension is allowed
-				if (!in_array($fileExtension, $allowedExtensions)) {
-					return ['status' => "fail", 'msg' => __('Invalid file type. Only MP4, AVI, MOV, and WMV files are allowed.', 'cv_generator')];
-				}
+            // Check if the file extension is allowed
+            if (!in_array($fileExtension, $allowedExtensions)) {
+                return ['status' => "fail", 'msg' => __('Invalid file type. Only MP4, AVI, MOV, and WMV files are allowed.', 'cv_generator')];
+            }
 
-                // verify that the file starts with 'video/' as these files should
-				$finfo = finfo_open(FILEINFO_MIME_TYPE);
-				$fileType = finfo_file($finfo, $_FILES['video']['tmp_name']);
-				if (strpos($fileType, 'video/') !== 0) {
-					return ['status' => "fail", 'msg' => __('Invalid file type. Only video files are allowed.', 'cv_generator')];
-				}
+            // verify that the file starts with 'video/' as these files should
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+            $fileType = finfo_file($finfo, $_FILES['video']['tmp_name']);
+            if (strpos($fileType, 'video/') !== 0) {
+                return ['status' => "fail", 'msg' => __('Invalid file type. Only video files are allowed.', 'cv_generator')];
+            }
 
-                // verify video length
-//				$ffmpeg = FFMpeg\FFMpeg::create();
-//				$video = $ffmpeg->open($_FILES['video']['tmp_name']);
-//				$duration = $video->getDuration();
-//				if ($duration < 5 || $duration > 300) {
-//					return ['status' => "fail", 'msg' => __('Invalid video duration. Only videos between 5 and 300 seconds are allowed.', 'cv_generator')];
-//				}
+            // Generate a unique filename for the uploaded file
+            $filename = $_FILES['video']['name'];
+            if (strlen($filename) > 255) {
+                return ['status' => "fail", 'msg' => __('Video file name is too long!', 'cv_generator')];
+            }
 
-				// Generate a unique filename for the uploaded file
-				$filename = $_FILES['video']['name'];
-				if (strlen($filename) > 255) {
-					return ['status' => "fail", 'msg' => __('Video file name is too long!', 'cv_generator')];
-				}
+            // Create the target directory if it doesn't already exist
+            if (!file_exists($uploadDir)) {
+                mkdir($uploadDir, 0755, true);
+            }
 
-				// Create the target directory if it doesn't already exist
-				if (!file_exists($uploadDir)) {
-					mkdir($uploadDir, 0755, true);
-				}
+            // Move the uploaded file to the designated directory on your server
+            $video_path = $uploadDir . $filename;
+            if (move_uploaded_file($_FILES['video']['tmp_name'], $video_path)) {
+                // Return a success response
+                $this->removePreviousVideoFolderIfExists($baseDir, $current_user_id);
 
-				// Move the uploaded file to the designated directory on your server
-				if (move_uploaded_file($_FILES['video']['tmp_name'], $uploadDir . $filename)) {
-					// Return a success response
-					$this->removePreviousVideoFolderIfExists($baseDir, $current_user_id);
-
-					update_user_meta($current_user_id, 'cv_generator_media_folder_id', $uniq_id);
-					update_user_meta($current_user_id, 'cv_generator_video_filename', $filename);
-//                    cv_generator_save_also_webm_format($uploadDir, $filename);
-					return [ 'status' => "ok", 'msg' => __( 'Success uploading video.', 'cv_generator' ) ];
-				} else {
-					return ['status' => "fail", 'msg' => __('Error uploading video 10000200', 'cv_generator')];
-				}
-			} else {
-				// Return an error response
-				return ['status' => "fail", 'msg' => __('Error uploading video 10000300', 'cv_generator')];
-			}
-		}
-
-		return ['status' => "fail", 'msg' => __('Error uploading video 10000400', 'cv_generator')];
+                update_user_meta($current_user_id, 'cv_generator_media_folder_id', $uniq_id);
+                update_user_meta($current_user_id, 'cv_generator_video_filename', $filename);
+                $this->create_thumbnail(1, $video_path);
+                return [ 'status' => "ok", 'msg' => __( 'Success uploading video.', 'cv_generator' ) ];
+            } else {
+                return ['status' => "fail", 'msg' => __('Error uploading video 10000200', 'cv_generator')];
+            }
+        } else {
+            // Return an error response
+            return ['status' => "fail", 'msg' => __('Error uploading video 10000300', 'cv_generator')];
+        }
 	}
 
 	function api_get_pdf_cv($data) {
@@ -432,6 +528,8 @@ class CVPostType {
                     'viewVideo' => __('Back', 'cv-generator'),
                     'startRecording' => __('Start recording', 'cv-generator'),
                     'stopRecording' => __('Stop recording', 'cv-generator'),
+                    'thumbnail' => __('Video thumbnail', 'cv-generator'),
+                    'setThumbnailByVideoSeconds' => __('Set thumbnail on this video second', 'cv-generator'),
                 ],
                 'api' => $api,
                 // be cautious when changing order of these because they are used in such order in Vue
