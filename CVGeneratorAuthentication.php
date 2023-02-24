@@ -1,5 +1,5 @@
 <?php
-require_once("cv-generator.php");
+require_once("cvgenerator.php");
 
 class CVGeneratorAuthentication
 {
