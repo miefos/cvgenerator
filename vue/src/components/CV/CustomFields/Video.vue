@@ -10,7 +10,7 @@
     <Button v-if="action === 'videoplayer' && userHasVideo" @click="deleteVideo" :label="data.translations.removeVideo" icon="pi pi-trash" />
     <VideoUploader :data="{...data}"></VideoUploader>
     <Button @click="setAction('videorecorder')" :label="data.translations.recordVideo" icon="pi pi-video" />
-    <Button @click="setThumbnailFromSecond" class="" :label="data.translations.setThumbnailByVideoSeconds" icon="pi pi-video" />
+    <Button @click="setThumbnailFromSecond" v-if="userHasVideo" :label="data.translations.setThumbnailByVideoSeconds" icon="pi pi-video" />
   </div>
   <div v-else>
     <Button type="button" @click="setAction('videoplayer')" :label="data.translations.viewVideo" icon="pi pi-arrow-left" class="my-2" />
