@@ -6,11 +6,12 @@ require_once "PDFCV.php";
 require_once "helpers.php";
 
 class CVPostType {
-	public function __construct() {
+	public function __construct(CVSettings $settings) {
 		add_action( 'init', [$this, 'cv_post_type'], 0);
 		add_action( 'transition_post_status', [$this, 'prevent_publishing_posts_publicly'], 10, 3 );
 		add_shortcode( 'cv_frontend_fields', [$this, 'cv_frontend_fields_shortcode_html'] );
 
+        $this->settings = $settings;
         $this->nonce_name = 'wp_rest';
 
 		$this->thumbnail_filename = "thumbnail.jpeg";
@@ -212,10 +213,6 @@ class CVPostType {
 	    readfile($path);
 	    exit;
     }
-
-//    public function api_upload_thumbnail($data) {
-//
-//    }
 
     public function api_set_thumbnail_by_video_second($data) {
         try {

@@ -1,0 +1,84 @@
+/* (A) TIMELINE CONTAINER */
+.section {
+    page-break-inside: avoid;
+}
+
+.vtl {
+    /* (A1) RELATIVE POSITION REQUIRED TO PROPERLY POSITION THE TIMELINE */
+    position: relative;
+
+    /* (A2) RESERVE MORE SPACE TO THE LEFT FOR THE TIMELINE */
+    padding: 0 10px 0 50px;
+    margin-bottom: 10px;
+
+    overflow: hidden;
+}
+
+/* (B) DRAW VERTICAL LINE USING ::BEFORE */
+.vtl:before {
+    /* (B1) VERTICAL LINE */
+    content: "";
+    width: 4px;
+    background-color: #475569;
+
+    /* (B2) POSITION TO THE LEFT */
+    position: absolute;
+    top: 3px; bottom: 0; left: 15px;
+}
+
+/* (C) COSMETICS FOR EVENTS */
+.listItem {
+    position: relative;
+}
+
+/* (D) COSMETICS FOR EVENT DATE & TEXT */
+.date {
+    font-size: 1.1em;
+    font-weight: 700;
+    color: #ff6a00;
+}
+.txt {
+    margin: 10px 0 0 0;
+    color: #222;
+}
+
+/* (F) CIRCLE ON TIMELINE */
+.listItem:after {
+    /* (F1) "MAGIC CIRCLE" */
+    content: "";
+    background: #475569;
+    width: 12px; height: 12px;
+    border-radius: 50%;
+
+    /* (F2) POSITION TO THE LEFT */
+    position: absolute;
+    top: 3px;
+    left: -39px;
+}
+
+/*
+Example:
+
+<div class="vtl">
+  <div class="listItem">
+    <p class="date">11 Mar 2237 12:34</p>
+    <p class="txt">Evil Cates invaded planet Doge.</p>
+  </div>
+  <div class="listItem">
+    <p class="date">12 Mar 2237 14:23</p>
+    <p class="txt">Cates ate Doge food.</p>
+  </div>
+  <div class="listItem">
+    <p class="date">13 Mar 2237 20:12</p>
+    <p class="txt">Cates took over the Doge beds.</p>
+  </div>
+  <div class="listItem">
+    <p class="date">14 Mar 2237 08:11</p>
+    <p class="txt">Hoomans to the rescue.</p>
+  </div>
+  <div class="listItem">
+    <p class="date">15 Mar 2237 14:27</p>
+    <p class="txt">Evil cates gone. Victory for good boys and girls.</p>
+  </div>
+</div>
+*/

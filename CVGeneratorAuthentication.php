@@ -6,7 +6,7 @@ class CVGeneratorAuthentication
     private $otp_length = 8;
     private $expire_time = "+2 hours";
 
-    public function __construct()
+    public function __construct(CVSettings $settings)
     {
         global $wpdb;
 	    add_shortcode( 'register_or_login', [$this, 'cv_generator_register_login_shortcode_html'] );

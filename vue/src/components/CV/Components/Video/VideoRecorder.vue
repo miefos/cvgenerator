@@ -56,39 +56,44 @@ export default {
     async stopRecording(shouldUpload = false) {
       if (this.recorder) {
         this.recorder.stopRecording(async () => {
-          console.log("this.recorder")
-          console.log(this.recorder)
           const webmBlob = this.recorder.getBlob();
           const theFile = new File([webmBlob], 'video.webm', {type: 'video/webm'});
           if (shouldUpload) {
             this.$store.dispatch('uploadVideo', {apiUrl: this.data.api.upload_video, theFile: theFile})
               .then(res => {
                 if (res.data.status === 'ok') {
+                  this.stopTracksAndReset()
                   this.$emit('recording-uploaded-successfully');
                 }
               })
+          } else {
+            this.stopTracksAndReset()
           }
-
-          this.stopTracksAndReset()
         });
       } else {
         this.stopTracksAndReset()
       }
     },
     stopTracksAndReset() {
+      console.log('stopped')
       this.isRecording = false;
       clearInterval(this.intervalId);
       this.elapsedTime = 0;
 
       if (this.mediaStream) {
+        console.log('is mediaStream')
+        console.log('mediaStream', this.mediaStream)
         this.mediaStream.getTracks().forEach((track) => {
+          console.log('track', track)
           track.stop();
           this.mediaStream.removeTrack(track);
         });
       }
       if (this.$refs.videoElement) {
+        console.log('is videoElement')
         this.$refs.videoElement.srcObject = null;
       }
+      console.log('mediaStream', this.mediaStream)
       this.recorder = null;
     }
   },

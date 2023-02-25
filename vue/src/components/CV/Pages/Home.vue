@@ -7,9 +7,16 @@
         </div>
       </div>
       <div class="surface-card shadow-2 border-round p-4 min-w-full">
-        <div class="text-3xl font-medium text-900 mb-2">Payments</div>
-        <div class="">
-          Table of payments
+        <div class="text-3xl font-medium text-900 mb-2">Access status</div>
+        <div v-if="paid" class="">
+          You have paid for the access to the CV until Feb 26, 16:35
+        </div>
+        <div v-else class="">
+          <p>You do not have paid for the access to the CV.</p>
+          <p>You can buy the access to the CV for 29.99 EUR.</p>
+          <div>
+            <Button v-if="!paid" class="mt-2" label="Buy" @click="pay" icon="pi pi-credit-card" />
+          </div>
         </div>
       </div>
   </div>
@@ -17,10 +24,20 @@
 
 <script>
 export default {
-  name: "Home"
+  name: "Home",
+  data () {
+    return {
+      paid: false
+    }
+  },
+  methods: {
+    pay () {
+      this.paid = true
+    }
+  }
 }
 </script>
 
-<style scoped>
-
-</style>
+<script setup>
+import Button from "primevue/button";
+</script>
