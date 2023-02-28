@@ -1,43 +1,35 @@
 <?php
 
 class CVLanguages {
+    public static array $available_languages = array(
+        'lv' => 'Latvian',
+        'ru_RU' => 'Russian',
+        'de_DE' => 'German',
+        'en_US' => 'English',
+    );
+
     public function __construct() {
 	    add_shortcode( 'cvgenerator_language_selector', [$this, 'language_selector_shortcode'] );
     }
 
-	public static function settings_page() {
+	public static function language_field() {
 		$languages = get_option( 'cvgenerator_languages', array() );
-		// when adding new ones, check correct code https://wpastra.com/docs/complete-list-wordpress-locale-codes/
-		$available_languages = array(
-			'lv' => 'Latvian',
-			'ru_RU' => 'Russian',
-			'de_DE' => 'German',
-			'en_US' => 'English',
-		);
-		?>
-		<div class="wrap">
-			<h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
-			<form action="options.php" method="post">
-				<?php
-				settings_fields( 'cvgenerator_settings' );
-				do_settings_sections( 'cvgenerator_settings' );
-				foreach ( $available_languages as $language_code => $language_name ) {
-					$checked = in_array( $language_code, $languages ) ? 'checked' : '';
-					echo "<label><input type='checkbox' name='cvgenerator_languages[]' value='$language_code' $checked> $language_name</label><br>";
-				}
-				submit_button( 'Save Settings' );
-				?>
-			</form>
-		</div>
-		<?php
+		// when adding new ones, check correct language code https://wpastra.com/docs/complete-list-wordpress-locale-codes/
+
+        foreach ( self::$available_languages as $language_code => $language_name ) {
+            $checked = in_array( $language_code, $languages ) ? 'checked' : '';
+            echo "<label><input type='checkbox' name='cvgenerator_languages[]' value='$language_code' $checked> $language_name</label><br>";
+        }
 	}
 
 	public static function sanitize_language_code( $languages ) {
 		$sanitized = array();
 		foreach ( $languages as $language ) {
-			if ( preg_match( '/^[a-zA-Z_-]+$/i', $language ) ) {
-				$sanitized[] = $language;
+			if (!preg_match( '/^[a-zA-Z_-]+$/i', $language ) || !in_array( $language, array_keys(self::$available_languages) ) ) {
+                add_settings_error('cvgenerator_languages', 'Invalid language code', __('invalid_language_code', 'cv-generator'), array());
+                break;
 			}
+            $sanitized[] = $language;
 		}
 		return $sanitized;
 	}
@@ -47,7 +39,7 @@ class CVLanguages {
 	 *
 	 * @return array
 	 */
-	public static function get_available_languages() {
+	public static function get_cv_enabled_languages() {
 		$language_codes = get_option( 'cvgenerator_languages', array() );
 		$available_languages = array();
 		foreach ( $language_codes as $language_code ) {
@@ -66,7 +58,7 @@ class CVLanguages {
 	}
 
 	public function validate_language_code($code) {
-		$available_language_codes = array_keys($this->get_available_languages());
+		$available_language_codes = array_keys($this->get_cv_enabled_languages());
 		return in_array($code, $available_language_codes);
 	}
 
@@ -89,7 +81,7 @@ class CVLanguages {
 
 	public function language_selector_shortcode() {
 		ob_start();
-		$language_codes = $this->get_available_languages();
+		$language_codes = $this->get_cv_enabled_languages();
 		$current_language = get_user_locale();
 
 		?>

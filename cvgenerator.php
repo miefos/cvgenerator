@@ -17,6 +17,7 @@ require_once "CVGeneratorAuthentication.php";
 require_once "CVPostType.php";
 require_once "CVSettings.php";
 require_once "CVLanguages.php";
+require_once "CVStripePayment.php";
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; /* Exit if accessed directly.*/
@@ -26,6 +27,7 @@ define("CVGEN_PLUGIN_DIR", dirname( __FILE__ ));
 const CVGEN_UPLOAD_DIR = CVGEN_PLUGIN_DIR . '/uploads';
 const CVGEN_ASSETS_DIR = CVGEN_PLUGIN_DIR . '/assets';
 const CVGEN_VIDEO_DIR = CVGEN_UPLOAD_DIR . '/video';
+const CVGEN_REST_PAYMENT_API_URL = [ 'cv_generator/cvpost', '/pay' ];
 
 function dd( ...$args ) {
 	foreach ( $args as $arg ) {
@@ -40,11 +42,14 @@ function cv_generator_mysql_time( $unix_timestamp ) {
 
 class cv_generator {
 	public function __construct() {
-		$this->settings = new CVSettings();
-		$this->cv_generator_auth = new CVGeneratorAuthentication($this->settings);
-		$this->cv_post_type = new CVPostType($this->settings);
-
 		add_action( 'plugins_loaded', function () {
+			$this->settings = new CVSettings();
+			$this->cv_stripe_payment = new CVStripePayment($this->settings);
+			$stripe_message = $this->cv_stripe_payment->getStatusMessage();
+
+			$this->cv_generator_auth = new CVGeneratorAuthentication($this->settings);
+			$this->cv_post_type = new CVPostType($this->settings, $stripe_message);
+
             $this->settings->languages->change_language_if_post_requested();
             $this->settings->languages->cv_generator_load_textdomain();
         });

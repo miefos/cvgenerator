@@ -2,7 +2,19 @@
 /*@import 'primevue/resources/themes/saga-blue/theme.css'; !* theme *!*/
 /*@import 'primevue/resources/primevue.min.css'; !* core css *!*/
 
+article > #cv_generator {
+  padding: 10px !important;
+}
+
 #cv_generator {
+  .entry-header {
+    display: none !important;
+  }
+
+  .select2-container.select2-selection--single {
+    background-position-y: calc( 100% - 17px ) !important;
+  }
+
   @keyframes p-progress-spinner-color {
     100%,
     0% {

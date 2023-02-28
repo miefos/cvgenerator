@@ -6,7 +6,7 @@ require_once "PDFCV.php";
 require_once "helpers.php";
 
 class CVPostType {
-	public function __construct(CVSettings $settings) {
+	public function __construct(CVSettings $settings, $stripe_message) {
 		add_action( 'init', [$this, 'cv_post_type'], 0);
 		add_action( 'transition_post_status', [$this, 'prevent_publishing_posts_publicly'], 10, 3 );
 		add_shortcode( 'cv_frontend_fields', [$this, 'cv_frontend_fields_shortcode_html'] );
@@ -15,6 +15,7 @@ class CVPostType {
         $this->nonce_name = 'wp_rest';
 
 		$this->thumbnail_filename = "thumbnail.jpeg";
+        $this->stripe_message = $stripe_message;
 
 		$this->sections = array(
             // section 1
@@ -128,14 +129,14 @@ class CVPostType {
 		);
 
         $this->api = [
-          'update_cv' => ['cv_generator/cvpost/', 'update'],
-          'download_cv' => ['cv_generator/cvpost/', 'download'],
-          'upload_video' => ['cv_generator/cvpost/', 'upload_video'],
-          'get_video' => ['cv_generator/cvpost/', 'get_video'],
-          'remove_video' => ['cv_generator/cvpost/', 'remove_video'],
-//          'upload_thumbnail' => ['cv_generator/cvpost/', 'upload_thumbnail'],
-          'get_thumbnail' => ['cv_generator/cvpost/', 'get_thumbnail'],
-          'set_thumbnail_by_video_second' => ['cv_generator/cvpost/', 'set_thumbnail_by_video_second'],
+          'update_cv' => ['cv_generator/cvpost', '/update'],
+          'download_cv' => ['cv_generator/cvpost', '/download'],
+          'upload_video' => ['cv_generator/cvpost', '/upload_video'],
+          'get_video' => ['cv_generator/cvpost', '/get_video'],
+          'remove_video' => ['cv_generator/cvpost', '/remove_video'],
+          'get_thumbnail' => ['cv_generator/cvpost', '/get_thumbnail'],
+          'set_thumbnail_by_video_second' => ['cv_generator/cvpost', '/set_thumbnail_by_video_second'],
+          'payment_redirect' => CVGEN_REST_PAYMENT_API_URL
         ];
 
 		add_action( 'rest_api_init', function () {
@@ -505,6 +506,7 @@ class CVPostType {
         return [
             'data' => [
                 'screen_type' => 'cv_post_frontend_fields',
+                'stripe_message' => $this->stripe_message,
                 'user_has_video' => cv_generator_user_has_video(),
                 'sections' => $this->sections,
                 'cv' => $cv,
@@ -564,9 +566,8 @@ class CVPostType {
 				wp_enqueue_script( "cv_generator_cvpost_frontend_vue", plugin_dir_url( __FILE__ ) . 'dist-vue/assets/index.js');
 			}
 
-
 			ob_start(); ?>
-			<div class="flex justify-content-center flex-wrap shadow-3 p-4" id="cv_generator" data-js="<?= esc_attr(wp_json_encode($this->data_to_javascript($cv))) ?>"></div>
+			<div class="w-full" id="cv_generator" data-js="<?= esc_attr(wp_json_encode($this->data_to_javascript($cv))) ?>"></div>
 
 			<?php
 			return ob_get_clean();

@@ -6,7 +6,6 @@
     "require": {
         "dompdf/dompdf": "^2.0",
         "php-ffmpeg/php-ffmpeg": "^1.1",
-        "stripe/stripe-php": "^10.7",
-        "spipu/html2pdf": "^5.2"
+        "stripe/stripe-php": "^10.7"
     }
 }

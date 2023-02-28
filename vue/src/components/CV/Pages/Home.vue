@@ -25,6 +25,7 @@
 <script>
 export default {
   name: "Home",
+  props: {data: {type: Object, required: true}},
   data () {
     return {
       paid: false
@@ -32,6 +33,8 @@ export default {
   },
   methods: {
     pay () {
+      console.log(this.data.api.payment_redirect)
+      window.location.replace(this.data.api.payment_redirect);
       this.paid = true
     }
   }

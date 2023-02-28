@@ -16,7 +16,6 @@
         </template>
       </div>
     </div>
-    <ProgressBar v-if="waitingForResponse" mode="indeterminate" />
   </BlockUI>
 </template>
 
