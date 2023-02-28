@@ -64,8 +64,8 @@ class CVStripePayment {
 			'payment_method_types' => array('card'),
 			'mode' => 'payment',
 			'line_items' => array($line_item),
-			'success_url' => home_url('/cv-generator?payment_status=success&stripe_session_id={CHECKOUT_SESSION_ID}'),
-			'cancel_url' => home_url('/cv-generator?payment_status=cancelled&stripe_session_id={CHECKOUT_SESSION_ID}'),
+			'success_url' => home_url('/cv-generator?stripe_session_id={CHECKOUT_SESSION_ID}'),
+			'cancel_url' => home_url('/cv-generator?stripe_session_id={CHECKOUT_SESSION_ID}'),
 		));
 
 		// Redirect the customer to the Checkout page
@@ -73,13 +73,14 @@ class CVStripePayment {
 		exit();
     }
 
-	public function getStatusMessage() {
+	public function processPayment() {
 		if (!isset($_GET['stripe_session_id'])) {
 			return false;
 		}
 
 		try {
 			$session = $this->stripe->checkout->sessions->retrieve($_GET['stripe_session_id']);
+			$payment_intent = $this->stripe->paymentIntents->retrieve($session->payment_intent);
 			$customer = $this->stripe->customers->retrieve($session->customer);
 			$shouldBeUserEmail = $customer->email;
 			$user = wp_get_current_user();
@@ -93,12 +94,56 @@ class CVStripePayment {
 				}
 				return ['status' => 'fail', 'message' => __("Error with the payment 200-100", 'cv-generator')];
 			}
-			return ['status' => 'ok', 'message' => __("Thanks for your order, now you can download your CV", 'cv-generator')];
+			if ($payment_intent->status === 'succeeded') {
+				$this->setUserPaidStatus( true );
+
+				return [ 'status'  => 'ok', 'message' => __( "Thanks for your order, now you can download your CV", 'cv-generator' ) ];
+			} else {
+				return ['status' => 'fail','message' => __("Payment did not succeed (10002)", 'cv-generator')];
+			}
 		} catch (Throwable $e) {
 			if (WP_DEBUG) {
 				die($e->getMessage());
 			}
 			return ['status' => 'fail', 'message' => __("Error with the payment 200-200.", 'cv-generator')];
 		}
+	}
+
+	public function setUserPaidStatus(bool $status) {
+		$userId = get_current_user_id();
+		if (!$userId) {
+			return;
+		}
+
+        update_user_meta($userId, 'cvgenerator_paid', $status ? 1 : 0);
+        update_user_meta($userId, 'cvgenerator_paid_at', time());
+    }
+
+	public static function getCurrentUserHowManyLeftMinutes($userBackupId = false) {
+		$userId = get_current_user_id();
+		if (!$userId && !$userBackupId) {
+			return false;
+		}
+
+		$expireInHours = CVSettings::getExpirationTimeInHours();
+
+		$paid = get_user_meta($userId, 'cvgenerator_paid', true);
+		$paid_at = get_user_meta($userId, 'cvgenerator_paid_at', true);
+		if ($paid && $paid_at) {
+			$expiration_time = strtotime('+' . $expireInHours . ' hours', $paid_at);
+
+			// Calculate the difference between the expiration time and the current time in seconds
+			$diff_seconds = $expiration_time - time();
+			// Convert the difference into hours
+			$diff_minutes = round($diff_seconds / 60);
+
+			if (time() > $expiration_time) {
+				return false;
+			} else {
+				return $diff_minutes;
+			}
+		}
+
+		return false;
 	}
 }

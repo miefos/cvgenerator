@@ -17,18 +17,25 @@ class CVSettings {
 
 		add_settings_section('payments_section', __('Payments', 'cv-generator'), null, 'cv-settings-page');
 
-		add_settings_field('cvgenerator_stripe_api_key', __('Stripe API key', 'cv-generator'), array($this, 'inputfieldHTML'), 'cv-settings-page', 'payments_section', array('theName' => 'cvgenerator_stripe_api_key'));
+		add_settings_field('cvgenerator_stripe_api_key', __('Stripe API key<span style=\'color: red\'>*</span>', 'cv-generator'), array($this, 'inputfieldHTML'), 'cv-settings-page', 'payments_section', array('theName' => 'cvgenerator_stripe_api_key'));
 		register_setting('cv_settings_group', 'cvgenerator_stripe_api_key', array('sanitize_callback' => 'sanitize_text_field'));
 
-		add_settings_field('cvgenerator_price_1', __('Price for product 1 access, EUR', 'cv-generator'), array($this, 'inputfieldHTML'), 'cv-settings-page', 'payments_section', array('theName' => 'cvgenerator_price_1'));
+		add_settings_field('cvgenerator_product_1_time', __("For how many hours should the CV be available after purchase?<span style='color: red'>*</span>", 'cv-generator'), array($this, 'inputfieldHTML'), 'cv-settings-page', 'payments_section', array('theName' => 'cvgenerator_product_1_time'));
+		register_setting('cv_settings_group', 'cvgenerator_product_1_time', array('sanitize_callback' => array($this, 'sanitizeHours'), 'sanitize_text_field'));
+
+		add_settings_field('cvgenerator_price_1', __('Price for product 1 access, EUR<span style=\'color: red\'>*</span>', 'cv-generator'), array($this, 'inputfieldHTML'), 'cv-settings-page', 'payments_section', array('theName' => 'cvgenerator_price_1'));
 		register_setting('cv_settings_group', 'cvgenerator_price_1', array('sanitize_callback' => array($this, 'sanitizePrice'), 'sanitize_text_field'));
 
-		add_settings_field('cvgenerator_product_name_1', __("Product name", 'cv-generator'), array($this, 'inputfieldHTML'), 'cv-settings-page', 'payments_section', array('theName' => 'cvgenerator_product_name_1'));
+		add_settings_field('cvgenerator_product_name_1', __("Product name<span style='color: red'>*</span>", 'cv-generator'), array($this, 'inputfieldHTML'), 'cv-settings-page', 'payments_section', array('theName' => 'cvgenerator_product_name_1'));
 		register_setting('cv_settings_group', 'cvgenerator_product_name_1', array('sanitize_callback' => 'sanitize_text_field'));
 
 		add_settings_field('cvgenerator_product_description_1', __("Product description", 'cv-generator'), array($this, 'textareafieldHTML'), 'cv-settings-page', 'payments_section', array('theName' => 'cvgenerator_product_description_1'));
 		register_setting('cv_settings_group', 'cvgenerator_product_description_1', array('sanitize_callback' => 'sanitize_text_field'));
 	}
+
+    public static function getExpirationTimeInHours() {
+        return get_option('cvgenerator_product_1_time');
+    }
 
 	function sanitizePrice($input) {
 		if ($input < 0) {
@@ -36,6 +43,14 @@ class CVSettings {
 			return get_option('cvgenerator_price_1');
 		}
 		return round($input, 2);
+	}
+
+	function sanitizeHours($input) {
+		if ($input < 0) {
+			add_settings_error('cvgenerator_product_1_time', 'cvgenerator_product_1_time_error', __('Hours cannot be less than 0', 'cv-generator'));
+			return get_option('cvgenerator_product_1_time');
+		}
+		return $input;
 	}
 
 	function inputfieldHTML($args) { ?>
@@ -76,6 +91,7 @@ class CVSettings {
             'available_languages' => CVLanguages::get_cv_enabled_languages(),
 		    'payments' => [
                 'price_1' => get_option('cvgenerator_price_1'),
+                'product_1_time' => get_option('cvgenerator_product_1_time'),
                 'product_name_1' => get_option('cvgenerator_product_name_1'),
                 'product_description_1' => get_option('cvgenerator_product_description_1'),
                 'stripe_api_key' => get_option('cvgenerator_stripe_api_key'),

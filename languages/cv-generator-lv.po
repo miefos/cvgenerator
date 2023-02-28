@@ -3,9 +3,9 @@ msgstr ""
 "Project-Id-Version: CV Generator\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2023-02-25 13:24+0000\n"
-"PO-Revision-Date: 2023-02-25 13:33+0000\n"
+"PO-Revision-Date: 2023-02-28 15:31+0000\n"
 "Last-Translator: \n"
-"Language-Team: Latviešu valoda\n"
+"Language-Team: Latvian\n"
 "Language: lv\n"
 "Plural-Forms: nplurals=3; plural=n%10==0||( n%100 >= 11 && n%100<=19)? 0 :"
 "(n%10==1 && n%100!=11 ? 1 : 2);\n"
@@ -16,39 +16,73 @@ msgstr ""
 "X-Loco-Version: 2.6.3; wp-6.1.1\n"
 "X-Domain: cv-generator"
 
-#: CVPostType.php:519
+#: CVPostType.php:534
+msgid "Access status"
+msgstr ""
+
+#: CVPostType.php:522
 msgid "Add"
 msgstr "Pievienot"
 
-#: CVPostType.php:525
+#: CVPostType.php:528
 msgid "Back"
 msgstr "Atpakaļ"
+
+#: CVPostType.php:538
+msgid "Buy"
+msgstr ""
 
 #. Name of the plugin
 msgid "CV Generator"
 msgstr "CV Generator"
 
-#: CVPostType.php:521
+#: CVPostType.php:533
+msgid "CV preview"
+msgstr ""
+
+#: CVPostType.php:524
 msgid "Delete video"
 msgstr "Izdzēst video"
 
-#: CVPostType.php:536
+#: CVPostType.php:545
 msgid "Download CV"
 msgstr "Lejupielādēt CV"
 
-#: CVPostType.php:535
+#: CVPostType.php:544
 msgid "Edit CV"
 msgstr ""
 
-#: CVPostType.php:92
+#: CVPostType.php:93
 msgid "Education"
 msgstr ""
 
-#: CVPostType.php:534
+#: CVStripePayment.php:95
+msgid "Error with the payment 200-100"
+msgstr ""
+
+#: CVStripePayment.php:107
+msgid "Error with the payment 200-200."
+msgstr ""
+
+#: CVSettings.php:23
+msgid ""
+"For how many hours should the CV be available after purchase?<span "
+"style='color: red'>*</span>"
+msgstr ""
+
+#: CVPostType.php:543
 msgid "Home"
 msgstr ""
 
-#: CVPostType.php:41
+#: CVSettings.php:50
+msgid "Hours cannot be less than 0"
+msgstr ""
+
+#: CVLanguages.php:29
+msgid "invalid_language_code"
+msgstr ""
+
+#: CVPostType.php:42 CVSettings.php:13 CVSettings.php:15
 msgid "Languages"
 msgstr ""
 
@@ -56,62 +90,107 @@ msgstr ""
 msgid "MX"
 msgstr ""
 
-#: cvgenerator.php:64
+#: CVLanguages.php:74
 msgid "Nonce incorrect!"
 msgstr ""
 
-#: CVPostType.php:22
+#: CVStripePayment.php:101
+msgid "Payment did not succeed (10002)"
+msgstr ""
+
+#: CVSettings.php:18
+msgid "Payments"
+msgstr ""
+
+#: CVPostType.php:23
 msgid "Personal information"
 msgstr ""
 
-#: CVPostType.php:523
-msgid "Record new video"
+#: CVSettings.php:42
+msgid "Price cannot be less than 0"
 msgstr ""
 
-#: CVPostType.php:520
-msgid "Remove"
+#: CVSettings.php:26
+msgid "Price for product 1 access, EUR<span style='color: red'>*</span>"
 msgstr ""
 
-#: CVPostType.php:517
-msgid "Save"
+#: CVSettings.php:32
+msgid "Product description"
 msgstr ""
 
-#: CVPostType.php:518
-msgid "Save and continue"
-msgstr ""
-
-#: CVPostType.php:529
-msgid "Set thumbnail on this video second"
+#: CVSettings.php:29
+msgid "Product name<span style='color: red'>*</span>"
 msgstr ""
 
 #: CVPostType.php:526
+msgid "Record new video"
+msgstr ""
+
+#: CVPostType.php:523
+msgid "Remove"
+msgstr ""
+
+#: CVPostType.php:520
+msgid "Save"
+msgstr ""
+
+#: CVPostType.php:521
+msgid "Save and continue"
+msgstr ""
+
+#: CVPostType.php:532
+msgid "Set thumbnail on this video second"
+msgstr ""
+
+#: CVPostType.php:529
 msgid "Start recording"
 msgstr ""
 
-#: CVPostType.php:527
+#: CVPostType.php:530
 msgid "Stop recording"
+msgstr ""
+
+#: CVSettings.php:20
+msgid "Stripe API key<span style='color: red'>*</span>"
+msgstr ""
+
+#: CVStripePayment.php:99
+msgid "Thanks for your order, now you can download your CV"
 msgstr ""
 
 #. Description of the plugin
 msgid "This plugin has 2 parts: authentication with OTP and CV generator"
 msgstr ""
 
-#: CVPostType.php:522
+#: CVPostType.php:525
 msgid "Upload video"
 msgstr ""
 
-#: CVPostType.php:114
+#: CVPostType.php:115
 msgid "Video"
 msgstr ""
 
-#: CVPostType.php:528
+#: CVPostType.php:531
 msgid "Video thumbnail"
 msgstr ""
 
-#: CVPostType.php:68
+#: CVPostType.php:69
 msgid "Work experience"
 msgstr ""
 
-#: CVPostType.php:524
+#: CVPostType.php:537
+#, php-format
+msgid "You can buy the access to download the CV for %0.2f EUR for %d hours"
+msgstr "Jūs varat iegādāties CV par %0.2f EUR uz %d stundām"
+
+#: CVPostType.php:536
+msgid "You do not have access to the CV"
+msgstr ""
+
+#: CVPostType.php:527
 msgid "You do not have video uploaded or recorder"
+msgstr ""
+
+#: CVPostType.php:535
+msgid "You have access to the CV"
 msgstr ""

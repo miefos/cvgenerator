@@ -82,6 +82,7 @@ class CVLanguages {
 	public function language_selector_shortcode() {
 		ob_start();
 		$language_codes = $this->get_cv_enabled_languages();
+        if (count($language_codes) <= 1) return false; // do not show if there is only one language
 		$current_language = get_user_locale();
 
 		?>

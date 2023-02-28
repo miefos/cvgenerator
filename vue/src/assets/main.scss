@@ -15,6 +15,26 @@ article:has(#cv_generator) .entry-header {
 }
 
 #cv_generator {
+  .p-button {
+    background-color: #2196F3 !important;
+    color: #FFFFFF !important;
+  }
+
+  .p-button:hover {
+    background-color: #0d89ec !important;
+    color: #FFFFFF !important;
+  }
+
+  .p-button:active {
+    background-color: #0d89ec !important;
+    color: #FFFFFF !important;
+  }
+
+  .p-button:focus {
+    background-color: #0d89ec !important;
+    color: #FFFFFF !important;
+  }
+
   @keyframes p-progress-spinner-color {
     100%,
     0% {

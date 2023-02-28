@@ -45,7 +45,7 @@ class cv_generator {
 		add_action( 'plugins_loaded', function () {
 			$this->settings = new CVSettings();
 			$this->cv_stripe_payment = new CVStripePayment($this->settings);
-			$stripe_message = $this->cv_stripe_payment->getStatusMessage();
+			$stripe_message = $this->cv_stripe_payment->processPayment();
 
 			$this->cv_generator_auth = new CVGeneratorAuthentication($this->settings);
 			$this->cv_post_type = new CVPostType($this->settings, $stripe_message);

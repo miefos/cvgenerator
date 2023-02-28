@@ -432,6 +432,11 @@ class CVPostType {
 
 	function api_get_pdf_cv($data) {
 	    $current_user_id = $data->get_attributes()['current_user_id']; // !! this comes from php not js
+
+        if (!CVStripePayment::getCurrentUserHowManyLeftMinutes()) {
+	        return ['status' => "fail", 'msg' => __('You have not paid for the CV.', 'cv_generator')];
+        }
+
         (new PDFCV())->show($current_user_id);
     }
 
@@ -507,6 +512,7 @@ class CVPostType {
             'data' => [
                 'screen_type' => 'cv_post_frontend_fields',
                 'stripe_message' => $this->stripe_message,
+                'left_minutes_for_payment' => CVStripePayment::getCurrentUserHowManyLeftMinutes(),
                 'user_has_video' => cv_generator_user_has_video(),
                 'sections' => $this->sections,
                 'cv' => $cv,
@@ -529,6 +535,13 @@ class CVPostType {
                     'stopRecording' => __('Stop recording', 'cv-generator'),
                     'thumbnail' => __('Video thumbnail', 'cv-generator'),
                     'setThumbnailByVideoSeconds' => __('Set thumbnail on this video second', 'cv-generator'),
+                    "cvPreview" => __('CV preview', 'cv-generator'),
+                    'accessStatus' => __('Access status', 'cv-generator'),
+                    'youHavePaidUntil' => __('You have access to the CV until', 'cv-generator'),
+                    'youHaveNotPaid' => __('You do not have access to the CV', 'cv-generator'),
+                    'youCanBuyTheAccessToTheCVFor' => sprintf(__('You can buy the access to download the CV for %0.2f EUR for %d hours', 'cv-generator'), $this->settings->get_settings()['payments']['price_1'], $this->settings->get_settings()['payments']['product_1_time']),
+                    'buy' => __('Buy', 'cv-generator'),
+	                'downloadCV' => __('Download CV', 'cv-generator'),
                 ],
                 'api' => $api,
                 // be cautious when changing order of these because they are used in such order in Vue
