@@ -28,6 +28,7 @@ const CVGEN_UPLOAD_DIR = CVGEN_PLUGIN_DIR . '/uploads';
 const CVGEN_ASSETS_DIR = CVGEN_PLUGIN_DIR . '/assets';
 const CVGEN_VIDEO_DIR = CVGEN_UPLOAD_DIR . '/video';
 const CVGEN_REST_PAYMENT_API_URL = [ 'cv_generator/cvpost', '/pay' ];
+const CVGEN_REST_WEBHOOK_URL = [ 'cv_generator/cvpost', '/webhook-stripe' ];
 
 function dd( ...$args ) {
 	foreach ( $args as $arg ) {

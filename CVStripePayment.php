@@ -27,7 +27,25 @@ class CVStripePayment {
 				'callback' => [$this, 'redirect_to_stripe'],
 				'current_user_id' => get_current_user_id(), // This will be pass to the rest API callback
 			) );
+
+			register_rest_route( CVGEN_REST_PAYMENT_API_URL[0], CVGEN_REST_PAYMENT_API_URL[1], array(
+				'methods' => 'POST',
+				'callback' => [$this, 'process_webhook'],
+				'current_user_id' => get_current_user_id(), // This will be pass to the rest API callback
+			) );
 		});
+	}
+
+	public function process_webhook() {
+		// Stripe's webhooks are POST requests with a JSON body. The raw JSON can
+		// typically be read from stdin, but this may vary based on your server setup.
+		// The webhook data won't be available in the $_POST superglobal because
+		// Stripe's webhook requests aren't sent in form-encoded format.
+		$payload = @file_get_contents('php://input');
+
+		// For now, you only need to log the webhook payload so you can see
+		// the structure.
+		file_put_contents(CVGEN_PLUGIN_DIR . '/webhook-log', $payload);
 	}
 
 	public function redirect_to_stripe($data) {
@@ -63,9 +81,10 @@ class CVStripePayment {
 			'customer' => $customer->id,
 			'payment_method_types' => array('card'),
 			'mode' => 'payment',
+			'metadata' => ['cvgen_used' => 0],
 			'line_items' => array($line_item),
-			'success_url' => home_url('/cv-generator?stripe_session_id={CHECKOUT_SESSION_ID}'),
-			'cancel_url' => home_url('/cv-generator?stripe_session_id={CHECKOUT_SESSION_ID}'),
+			'success_url' => home_url('/cv-generator?stripe_status=success'),
+			'cancel_url' => home_url('/cv-generator?stripe_status=cancelled'),
 		));
 
 		// Redirect the customer to the Checkout page
@@ -74,39 +93,58 @@ class CVStripePayment {
     }
 
 	public function processPayment() {
-		if (!isset($_GET['stripe_session_id'])) {
+		if (!isset($_GET['stripe_status'])) {
 			return false;
 		}
+		$status = $_GET['stripe_status'];
 
-		try {
-			$session = $this->stripe->checkout->sessions->retrieve($_GET['stripe_session_id']);
-			$payment_intent = $this->stripe->paymentIntents->retrieve($session->payment_intent);
-			$customer = $this->stripe->customers->retrieve($session->customer);
-			$shouldBeUserEmail = $customer->email;
-			$user = wp_get_current_user();
-			if (!$user->ID) {
-				die('You must be logged in to use this feature.');
-			}
-			if ($user->user_email !== $shouldBeUserEmail) {
-				if (WP_DEBUG) {
-					// wp die to show that user email did not match
-					die("User email did not match. $user->user_email != $shouldBeUserEmail");
-				}
-				return ['status' => 'fail', 'message' => __("Error with the payment 200-100", 'cv-generator')];
-			}
-			if ($payment_intent->status === 'succeeded') {
-				$this->setUserPaidStatus( true );
+		return match ($status) {
+			'success' => ['status' => 'ok', 'message' => __("Payment successful", 'cv-generator')],
+            'cancelled' => ['status' => 'info', 'message' => __("Payment cancelled", 'cv-generator')],
+		};
 
-				return [ 'status'  => 'ok', 'message' => __( "Thanks for your order, now you can download your CV", 'cv-generator' ) ];
-			} else {
-				return ['status' => 'fail','message' => __("Payment did not succeed (10002)", 'cv-generator')];
-			}
-		} catch (Throwable $e) {
-			if (WP_DEBUG) {
-				die($e->getMessage());
-			}
-			return ['status' => 'fail', 'message' => __("Error with the payment 200-200.", 'cv-generator')];
-		}
+
+//		if (!isset($_GET['stripe_session_id'])) {
+//			return false;
+//		}
+//
+//		try {
+//			$session = $this->stripe->checkout->sessions->retrieve($_GET['stripe_session_id']);
+//			$payment_intent = $this->stripe->paymentIntents->retrieve($session->payment_intent);
+//			$customer = $this->stripe->customers->retrieve($session->customer);
+//			$shouldBeUserEmail = $customer->email;
+//			$user = wp_get_current_user();
+//			if (!$user->ID) {
+//				die('You must be logged in to use this feature.');
+//			}
+//			if ($user->user_email !== $shouldBeUserEmail) {
+//				if (WP_DEBUG) {
+//					// wp die to show that user email did not match
+//					die("User email did not match. $user->user_email != $shouldBeUserEmail");
+//				}
+//				return ['status' => 'fail', 'message' => __("Error with the payment 200-100", 'cv-generator')];
+//			}
+//			if ($payment_intent->status === 'succeeded') {
+//				var_dump($session->metadata);
+//				if (intval($session->metadata['cvgen_used']) === 0) {
+//					$session->updateAttributes( [
+//						'metadata' => [ 'cvgen_used' => 1 ]
+//					] );
+//					$this->setUserPaidStatus( true );
+//
+//					return [ 'status'  => 'ok', 'message' => __( "Thanks for your order, now you can download your CV", 'cv-generator' ) ];
+//				} else {
+//					return ['status' => 'fail','message' => __("Session expired", 'cv-generator')];
+//				}
+//			} else {
+//				return ['status' => 'fail','message' => __("Payment did not succeed (10002)", 'cv-generator')];
+//			}
+//		} catch (Throwable $e) {
+//			if (WP_DEBUG) {
+//				die($e->getMessage());
+//			}
+//			return ['status' => 'fail', 'message' => __("Error with the payment 200-200.", 'cv-generator')];
+//		}
 	}
 
 	public function setUserPaidStatus(bool $status) {

@@ -5,7 +5,7 @@
       <Navigation :tabs="tabs"></Navigation>
     </div>
 
-    <Message class="scalein animation-ease-in-out animation-duration-1000" v-if="data.stripe_message" :severity="data.stripe_message?.status === 'ok' ? 'success' : 'error'">{{ data.stripe_message.message }}</Message>
+    <Message class="scalein animation-ease-in-out animation-duration-1000" v-if="data.stripe_message" :severity="getSeverity(data.stripe_message?.status)">{{ data.stripe_message.message }}</Message>
     <!-- Page -->
     <router-view :data="{...data}"></router-view>
 
@@ -26,6 +26,18 @@ export default {
       tabs: this.data.navigation_tabs
     }
   },
+  methods: {
+    getSeverity(status) {
+      switch (status) {
+        case "ok":
+          return "success";
+        case "fail":
+          return "error";
+        default:
+          return "info";
+      }
+    }
+  }
 }
 </script>
 

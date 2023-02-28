@@ -74,6 +74,10 @@ class CVSettings {
 	function ourHTML() { ?>
 		<div class="wrap">
 			<h1><?=esc_html( get_admin_page_title())?></h1>
+            <div>
+                <div style="font-weight: bold">Stripe Webhook URL is</div>
+                <?= get_rest_url() . CVGEN_REST_WEBHOOK_URL[0] . CVGEN_REST_WEBHOOK_URL[1]?>
+            </div>
 			<form action="options.php" method="POST">
 				<?php
 				settings_errors();
