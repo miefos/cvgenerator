@@ -10,11 +10,11 @@ article:has(#cv_generator) .entry-header {
   display: none !important;
 }
 
-#cv_generator {
-  .select2-container.select2-selection--single {
-    background-position-y: calc( 100% - 17px ) !important;
-  }
+article:has(#cv_generator) .select2-container.select2-selection--single {
+  background-position-y: calc( 100% - 17px ) !important;
+}
 
+#cv_generator {
   @keyframes p-progress-spinner-color {
     100%,
     0% {
