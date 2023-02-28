@@ -53,7 +53,8 @@ class CVStripePayment {
 			'currency' => 'eur',
 			'quantity' => 1,
 		);
-		if (empty($this->product_description)) {
+
+		if (!empty($this->product_description)) {
 			$line_item['description'] = $this->product_description;
 		}
 
