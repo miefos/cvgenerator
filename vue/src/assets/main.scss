@@ -10,7 +10,7 @@ article:has(#cv_generator) .entry-header {
   display: none !important;
 }
 
-article:has(#cv_generator) .select2-container.select2-selection--single {
+#cvgenerator_language {
   background-position-y: calc( 100% - 17px ) !important;
 }
 

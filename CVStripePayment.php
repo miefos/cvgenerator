@@ -46,20 +46,25 @@ class CVStripePayment {
 			'email' => $user->user_email,
 		));
 
+		// set up line item
+		$line_item = array(
+			'name' => $this->product_name,
+			'amount' => $this->price * 100,
+			'currency' => 'eur',
+			'quantity' => 1,
+		);
+		if (empty($this->product_description)) {
+			$line_item['description'] = $this->product_description;
+		}
+
 		// Create a Checkout session
 		$session = \Stripe\Checkout\Session::create(array(
 			'customer' => $customer->id,
 			'payment_method_types' => array('card'),
 			'mode' => 'payment',
-			'line_items' => array(array(
-				'name' => $this->product_name,
-				'description' => $this->product_description,
-				'amount' => $this->price * 100,
-				'currency' => 'eur',
-				'quantity' => 1,
-			)),
+			'line_items' => array($line_item),
 			'success_url' => home_url('/cv-generator?payment_status=success&stripe_session_id={CHECKOUT_SESSION_ID}'),
-			'cancel_url' => home_url('/cv-generator?payment_status=cancelled'),
+			'cancel_url' => home_url('/cv-generator?payment_status=cancelled&stripe_session_id={CHECKOUT_SESSION_ID}'),
 		));
 
 		// Redirect the customer to the Checkout page
