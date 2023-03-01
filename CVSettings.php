@@ -20,6 +20,9 @@ class CVSettings {
 		add_settings_field('cvgenerator_stripe_api_key', __('Stripe API key<span style=\'color: red\'>*</span>', 'cv-generator'), array($this, 'inputfieldHTML'), 'cv-settings-page', 'payments_section', array('theName' => 'cvgenerator_stripe_api_key'));
 		register_setting('cv_settings_group', 'cvgenerator_stripe_api_key', array('sanitize_callback' => 'sanitize_text_field'));
 
+		add_settings_field('cvgenerator_stripe_webhook_secret', __('Stripe Webhook secret<span style=\'color: red\'>*</span>', 'cv-generator'), array($this, 'inputfieldHTML'), 'cv-settings-page', 'payments_section', array('theName' => 'cvgenerator_stripe_webhook_secret'));
+		register_setting('cv_settings_group', 'cvgenerator_stripe_webhook_secret', array('sanitize_callback' => 'sanitize_text_field'));
+
 		add_settings_field('cvgenerator_product_1_time', __("For how many hours should the CV be available after purchase?<span style='color: red'>*</span>", 'cv-generator'), array($this, 'inputfieldHTML'), 'cv-settings-page', 'payments_section', array('theName' => 'cvgenerator_product_1_time'));
 		register_setting('cv_settings_group', 'cvgenerator_product_1_time', array('sanitize_callback' => array($this, 'sanitizeHours'), 'sanitize_text_field'));
 
@@ -99,6 +102,7 @@ class CVSettings {
                 'product_name_1' => get_option('cvgenerator_product_name_1'),
                 'product_description_1' => get_option('cvgenerator_product_description_1'),
                 'stripe_api_key' => get_option('cvgenerator_stripe_api_key'),
+                'stripe_webhook_secret' => get_option('cvgenerator_stripe_webhook_secret'),
             ]
         ];
     }

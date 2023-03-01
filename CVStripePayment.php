@@ -13,6 +13,7 @@ class CVStripePayment {
 		$this->product_name = $this->settings->get_settings()['payments']['product_name_1'] ?? '';
 		$this->product_description = $this->settings->get_settings()['payments']['product_description_1'] ?? '';
 		$this->apiKey = $this->settings->get_settings()['payments']['stripe_api_key'] ?? '';
+		$this->webhook_secret = $this->settings->get_settings()['payments']['stripe_webhook_secret'] ?? '';
 
 		// set up Stripe
 		if ($this->apiKey) {
@@ -28,7 +29,7 @@ class CVStripePayment {
 				'current_user_id' => get_current_user_id(), // This will be pass to the rest API callback
 			) );
 
-			register_rest_route( CVGEN_REST_PAYMENT_API_URL[0], CVGEN_REST_PAYMENT_API_URL[1], array(
+			register_rest_route( CVGEN_REST_WEBHOOK_URL[0], CVGEN_REST_WEBHOOK_URL[1], array(
 				'methods' => 'POST',
 				'callback' => [$this, 'process_webhook'],
 				'current_user_id' => get_current_user_id(), // This will be pass to the rest API callback
@@ -37,15 +38,52 @@ class CVStripePayment {
 	}
 
 	public function process_webhook() {
-		// Stripe's webhooks are POST requests with a JSON body. The raw JSON can
-		// typically be read from stdin, but this may vary based on your server setup.
-		// The webhook data won't be available in the $_POST superglobal because
-		// Stripe's webhook requests aren't sent in form-encoded format.
-		$payload = @file_get_contents('php://input');
+		// This is your Stripe CLI webhook secret for testing your endpoint locally.
+		$endpoint_secret = $this->webhook_secret;
 
-		// For now, you only need to log the webhook payload so you can see
-		// the structure.
-		file_put_contents(CVGEN_PLUGIN_DIR . '/webhook-log', $payload);
+		$payload = @file_get_contents('php://input');
+		$sig_header = $_SERVER['HTTP_STRIPE_SIGNATURE'];
+		$event = null;
+
+		try {
+			$event = \Stripe\Webhook::constructEvent(
+				$payload, $sig_header, $endpoint_secret
+			);
+		} catch(\UnexpectedValueException $e) {
+			// Invalid payload
+			http_response_code(400);
+			exit();
+		} catch(\Stripe\Exception\SignatureVerificationException $e) {
+			// Invalid signature
+			http_response_code(400);
+			exit();
+		}
+
+		switch ($event->type) {
+			case 'checkout.session.async_payment_succeeded':
+				$session = $event->data->object;
+			case 'checkout.session.completed':
+				$session = $event->data->object;
+			default:
+				echo 'Received unknown event type ' . $event->type;
+		}
+
+		if (!isset($session)) {
+			http_response_code(400);
+			die('could not get session object');
+		}
+
+		$userEmail = $session->customer_details->email;
+		$user = get_user_by('email', $userEmail);
+		if (!$user) {
+			http_response_code(404);
+            die('could not find user');
+		}
+
+		$this->setUserPaidStatus($user->ID,true);
+
+		http_response_code(200);
+		return 'ok';
 	}
 
 	public function redirect_to_stripe($data) {
@@ -92,67 +130,38 @@ class CVStripePayment {
 		exit();
     }
 
-	public function processPayment() {
-		if (!isset($_GET['stripe_status'])) {
-			return false;
+	public function getMessage() {
+		if (isset($_GET['stripe_status'])) {
+			return match ( $_GET['stripe_status'] ) {
+				'success' => [ 'status'  => 'ok',
+				               'message' => __( "Payment successful. You may need to refresh the page to get access.", 'cv-generator' )
+				],
+				'cancelled' => [ 'status' => 'info', 'message' => __( "Payment cancelled", 'cv-generator' ) ],
+				default => [ 'status' => 'fail', 'message' => __( "Some error happened", 'cv-generator' ) ],
+			};
 		}
-		$status = $_GET['stripe_status'];
 
-		return match ($status) {
-			'success' => ['status' => 'ok', 'message' => __("Payment successful", 'cv-generator')],
-            'cancelled' => ['status' => 'info', 'message' => __("Payment cancelled", 'cv-generator')],
-		};
-
-
-//		if (!isset($_GET['stripe_session_id'])) {
-//			return false;
+//			session_start();
+//			$_SESSION['stripe_status'] = $status;
+//			# 4242 4242 4242 4242
+//			wp_redirect(CVGEN_HOME_URL);
+//			exit();
 //		}
 //
-//		try {
-//			$session = $this->stripe->checkout->sessions->retrieve($_GET['stripe_session_id']);
-//			$payment_intent = $this->stripe->paymentIntents->retrieve($session->payment_intent);
-//			$customer = $this->stripe->customers->retrieve($session->customer);
-//			$shouldBeUserEmail = $customer->email;
-//			$user = wp_get_current_user();
-//			if (!$user->ID) {
-//				die('You must be logged in to use this feature.');
+//		else {
+//			session_start();
+//			$current_url = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}";
+//			if (isset($_SESSION['stripe_status']) && $current_url === CVGEN_HOME_URL) {
+//				$status = $_SESSION['stripe_status'];
+//				unset($_SESSION['stripe_status']);
+//				return $status;
 //			}
-//			if ($user->user_email !== $shouldBeUserEmail) {
-//				if (WP_DEBUG) {
-//					// wp die to show that user email did not match
-//					die("User email did not match. $user->user_email != $shouldBeUserEmail");
-//				}
-//				return ['status' => 'fail', 'message' => __("Error with the payment 200-100", 'cv-generator')];
-//			}
-//			if ($payment_intent->status === 'succeeded') {
-//				var_dump($session->metadata);
-//				if (intval($session->metadata['cvgen_used']) === 0) {
-//					$session->updateAttributes( [
-//						'metadata' => [ 'cvgen_used' => 1 ]
-//					] );
-//					$this->setUserPaidStatus( true );
-//
-//					return [ 'status'  => 'ok', 'message' => __( "Thanks for your order, now you can download your CV", 'cv-generator' ) ];
-//				} else {
-//					return ['status' => 'fail','message' => __("Session expired", 'cv-generator')];
-//				}
-//			} else {
-//				return ['status' => 'fail','message' => __("Payment did not succeed (10002)", 'cv-generator')];
-//			}
-//		} catch (Throwable $e) {
-//			if (WP_DEBUG) {
-//				die($e->getMessage());
-//			}
-//			return ['status' => 'fail', 'message' => __("Error with the payment 200-200.", 'cv-generator')];
 //		}
+
+		return false;
 	}
 
-	public function setUserPaidStatus(bool $status) {
-		$userId = get_current_user_id();
-		if (!$userId) {
-			return;
-		}
-
+	public function setUserPaidStatus($userId, bool $status) {
         update_user_meta($userId, 'cvgenerator_paid', $status ? 1 : 0);
         update_user_meta($userId, 'cvgenerator_paid_at', time());
     }
@@ -163,10 +172,13 @@ class CVStripePayment {
 			return false;
 		}
 
+		$userId = $userId ?: $userBackupId;
+
 		$expireInHours = CVSettings::getExpirationTimeInHours();
 
 		$paid = get_user_meta($userId, 'cvgenerator_paid', true);
 		$paid_at = get_user_meta($userId, 'cvgenerator_paid_at', true);
+
 		if ($paid && $paid_at) {
 			$expiration_time = strtotime('+' . $expireInHours . ' hours', $paid_at);
 

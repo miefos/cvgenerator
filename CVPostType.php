@@ -433,7 +433,7 @@ class CVPostType {
 	function api_get_pdf_cv($data) {
 	    $current_user_id = $data->get_attributes()['current_user_id']; // !! this comes from php not js
 
-        if (!CVStripePayment::getCurrentUserHowManyLeftMinutes()) {
+        if (!CVStripePayment::getCurrentUserHowManyLeftMinutes($current_user_id)) {
 	        return ['status' => "fail", 'msg' => __('You have not paid for the CV.', 'cv_generator')];
         }
 
@@ -538,7 +538,7 @@ class CVPostType {
                     "cvPreview" => __('CV preview', 'cv-generator'),
                     'accessStatus' => __('Access status', 'cv-generator'),
                     'youHavePaidUntil' => __('You have access to the CV until', 'cv-generator'),
-                    'youHaveNotPaid' => __('You do not have access to the CV', 'cv-generator'),
+                    'youHaveNotPaid' => __('You need to buy access to the CV to download it.', 'cv-generator'),
                     'youCanBuyTheAccessToTheCVFor' => sprintf(__('You can buy the access to download the CV for %0.2f EUR for %d hours', 'cv-generator'), $this->settings->get_settings()['payments']['price_1'], $this->settings->get_settings()['payments']['product_1_time']),
                     'buy' => __('Buy', 'cv-generator'),
 	                'downloadCV' => __('Download CV', 'cv-generator'),

@@ -29,6 +29,7 @@ const CVGEN_ASSETS_DIR = CVGEN_PLUGIN_DIR . '/assets';
 const CVGEN_VIDEO_DIR = CVGEN_UPLOAD_DIR . '/video';
 const CVGEN_REST_PAYMENT_API_URL = [ 'cv_generator/cvpost', '/pay' ];
 const CVGEN_REST_WEBHOOK_URL = [ 'cv_generator/cvpost', '/webhook-stripe' ];
+define( "CVGEN_HOME_URL", home_url( '/cv-generator/' ) );
 
 function dd( ...$args ) {
 	foreach ( $args as $arg ) {
@@ -46,7 +47,7 @@ class cv_generator {
 		add_action( 'plugins_loaded', function () {
 			$this->settings = new CVSettings();
 			$this->cv_stripe_payment = new CVStripePayment($this->settings);
-			$stripe_message = $this->cv_stripe_payment->processPayment();
+			$stripe_message = $this->cv_stripe_payment->getMessage();
 
 			$this->cv_generator_auth = new CVGeneratorAuthentication($this->settings);
 			$this->cv_post_type = new CVPostType($this->settings, $stripe_message);
