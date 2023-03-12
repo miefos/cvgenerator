@@ -558,7 +558,7 @@ class CVPostType {
         return [
             'data' => [
                 'screen_type' => 'cv_post_frontend_fields',
-                'public_video_url' => get_user_meta(get_current_user_id(), 'cv_generator_video_url_param', true),
+                'public_video_key' => get_user_meta(get_current_user_id(), 'cv_generator_video_url_param', true),
                 'left_minutes_for_payment' => CVStripePayment::getCurrentUserHowManyLeftMinutes(),
                 'user_has_video' => cv_generator_user_has_video(),
                 'sections' => $this->sections,
@@ -587,6 +587,7 @@ class CVPostType {
                     'youHavePaidUntil' => __('You have access to the CV until', 'cv-generator'),
                     'youHaveNotPaid' => __('You need to buy access to the CV to download it.', 'cv-generator'),
                     'youCanBuyTheAccessToTheCVFor' => sprintf(__('You can buy the access to download the CV for %0.2f EUR for %d hours', 'cv-generator'), $this->settings->get_settings()['payments']['price_1'], $this->settings->get_settings()['payments']['product_1_time']),
+                    'yourVideoPubliclyIsAvailableHere' => __('Your publicly accessible video is here: ', 'cv-generator'),
                     'buy' => __('Buy', 'cv-generator'),
 	                'downloadCV' => __('Download CV', 'cv-generator'),
                 ],

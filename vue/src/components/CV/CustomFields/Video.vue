@@ -1,6 +1,8 @@
 <template>
   <VideoRecorder @recording-uploaded-successfully="setAction('videoplayer')" v-if="action === 'videorecorder'" :data="{...data}"></VideoRecorder>
-  <VideoPlayer @updateVideoSecond="(sec) => currentVideoSecond = sec" v-if="action === 'videoplayer' && userHasVideo" :key="waitingForResponse" :url="data.api.get_video + '?t=' + Date.now() + '&q=' + data.public_video_url" :data="{...data}"></VideoPlayer>
+  <div v-if="action === 'videoplayer' && userHasVideo">
+    <VideoPlayer @updateVideoSecond="(sec) => currentVideoSecond = sec" :key="waitingForResponse" :url="data.api.get_video + '?t=' + Date.now() + '&q=' + data.public_video_key" :data="{...data}"></VideoPlayer>
+  </div>
   <div v-else-if="action === 'videoplayer' && !userHasVideo">
     <h4>{{ data.translations.noVideo }}</h4>
   </div>
@@ -22,6 +24,10 @@
     <div class="flex">
         <img width="300" :src="data.api.get_thumbnail + '?t=' + new Date()" class="rounded-circle" />
     </div>
+  </div>
+  <div v-if="action === 'videoplayer' && userHasVideo">
+    {{ data.translations.yourVideoPubliclyIsAvailableHere }} <br />
+    {{ data.api.get_video + "?q=" + data.public_video_key}}
   </div>
 </template>
 
