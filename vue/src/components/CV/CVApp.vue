@@ -5,7 +5,6 @@
       <Navigation :tabs="tabs"></Navigation>
     </div>
 
-    <Message class="scalein animation-ease-in-out animation-duration-1000" v-if="data.stripe_message" :severity="getSeverity(data.stripe_message?.status)">{{ data.stripe_message.message }}</Message>
     <!-- Page -->
     <router-view :data="{...data}"></router-view>
 

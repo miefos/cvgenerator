@@ -1,0 +1,117 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: CV Generator\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-02-25 13:24+0000\n"
+"PO-Revision-Date: 2023-02-25 13:27+0000\n"
+"Last-Translator: \n"
+"Language-Team: Latviešu valoda\n"
+"Language: lv\n"
+"Plural-Forms: nplurals=3; plural=n%10==0||( n%100 >= 11 && n%100<=19)? 0 :"
+"(n%10==1 && n%100!=11 ? 1 : 2);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Loco https://localise.biz/\n"
+"X-Loco-Version: 2.6.3; wp-6.1.1\n"
+"X-Domain: cv-generator"
+
+#: CVPostType.php:519
+msgid "Add"
+msgstr "Pievienot"
+
+#: CVPostType.php:525
+msgid "Back"
+msgstr "Atpakaļ"
+
+#. Name of the plugin
+msgid "CV Generator"
+msgstr "CV Generator"
+
+#: CVPostType.php:521
+msgid "Delete video"
+msgstr "Izdzēst video"
+
+#: CVPostType.php:536
+msgid "Download CV"
+msgstr ""
+
+#: CVPostType.php:535
+msgid "Edit CV"
+msgstr ""
+
+#: CVPostType.php:92
+msgid "Education"
+msgstr ""
+
+#: CVPostType.php:534
+msgid "Home"
+msgstr ""
+
+#: CVPostType.php:41
+msgid "Languages"
+msgstr ""
+
+#. Author of the plugin
+msgid "MX"
+msgstr ""
+
+#: cvgenerator.php:64
+msgid "Nonce incorrect!"
+msgstr ""
+
+#: CVPostType.php:22
+msgid "Personal information"
+msgstr ""
+
+#: CVPostType.php:523
+msgid "Record new video"
+msgstr ""
+
+#: CVPostType.php:520
+msgid "Remove"
+msgstr ""
+
+#: CVPostType.php:517
+msgid "Save"
+msgstr ""
+
+#: CVPostType.php:518
+msgid "Save and continue"
+msgstr ""
+
+#: CVPostType.php:529
+msgid "Set thumbnail on this video second"
+msgstr ""
+
+#: CVPostType.php:526
+msgid "Start recording"
+msgstr ""
+
+#: CVPostType.php:527
+msgid "Stop recording"
+msgstr ""
+
+#. Description of the plugin
+msgid "This plugin has 2 parts: authentication with OTP and CV generator"
+msgstr ""
+
+#: CVPostType.php:522
+msgid "Upload video"
+msgstr ""
+
+#: CVPostType.php:114
+msgid "Video"
+msgstr ""
+
+#: CVPostType.php:528
+msgid "Video thumbnail"
+msgstr ""
+
+#: CVPostType.php:68
+msgid "Work experience"
+msgstr ""
+
+#: CVPostType.php:524
+msgid "You do not have video uploaded or recorder"
+msgstr ""

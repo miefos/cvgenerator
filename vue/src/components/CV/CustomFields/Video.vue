@@ -1,6 +1,6 @@
 <template>
   <VideoRecorder @recording-uploaded-successfully="setAction('videoplayer')" v-if="action === 'videorecorder'" :data="{...data}"></VideoRecorder>
-  <VideoPlayer @updateVideoSecond="(sec) => currentVideoSecond = sec" v-if="action === 'videoplayer' && userHasVideo" :key="waitingForResponse" :url="data.api.get_video + '?t=' + Date.now()" :data="{...data}"></VideoPlayer>
+  <VideoPlayer @updateVideoSecond="(sec) => currentVideoSecond = sec" v-if="action === 'videoplayer' && userHasVideo" :key="waitingForResponse" :url="data.api.get_video + '?t=' + Date.now() + '&q=' + data.public_video_url" :data="{...data}"></VideoPlayer>
   <div v-else-if="action === 'videoplayer' && !userHasVideo">
     <h4>{{ data.translations.noVideo }}</h4>
   </div>

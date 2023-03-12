@@ -121,45 +121,14 @@ class CVStripePayment {
 			'mode' => 'payment',
 			'metadata' => ['cvgen_used' => 0],
 			'line_items' => array($line_item),
-			'success_url' => home_url('/cv-generator?stripe_status=success'),
-			'cancel_url' => home_url('/cv-generator?stripe_status=cancelled'),
+			'success_url' => home_url('/cv-generator'),
+			'cancel_url' => home_url('/cv-generator'),
 		));
 
 		// Redirect the customer to the Checkout page
 		header('Location: ' . $session->url);
 		exit();
     }
-
-	public function getMessage() {
-		if (isset($_GET['stripe_status'])) {
-			return match ( $_GET['stripe_status'] ) {
-				'success' => [ 'status'  => 'ok',
-				               'message' => __( "Payment successful. You may need to refresh the page to get access.", 'cv-generator' )
-				],
-				'cancelled' => [ 'status' => 'info', 'message' => __( "Payment cancelled", 'cv-generator' ) ],
-				default => [ 'status' => 'fail', 'message' => __( "Some error happened", 'cv-generator' ) ],
-			};
-		}
-
-//			session_start();
-//			$_SESSION['stripe_status'] = $status;
-//			# 4242 4242 4242 4242
-//			wp_redirect(CVGEN_HOME_URL);
-//			exit();
-//		}
-//
-//		else {
-//			session_start();
-//			$current_url = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}";
-//			if (isset($_SESSION['stripe_status']) && $current_url === CVGEN_HOME_URL) {
-//				$status = $_SESSION['stripe_status'];
-//				unset($_SESSION['stripe_status']);
-//				return $status;
-//			}
-//		}
-
-		return false;
-	}
 
 	public function setUserPaidStatus($userId, bool $status) {
         update_user_meta($userId, 'cvgenerator_paid', $status ? 1 : 0);
@@ -168,6 +137,7 @@ class CVStripePayment {
 
 	public static function getCurrentUserHowManyLeftMinutes($userBackupId = false) {
 		$userId = get_current_user_id();
+
 		if (!$userId && !$userBackupId) {
 			return false;
 		}

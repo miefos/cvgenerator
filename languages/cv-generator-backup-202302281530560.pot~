@@ -1,0 +1,202 @@
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: CV Generator\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-02-28 15:29+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: \n"
+"Language: \n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Loco https://localise.biz/\n"
+"X-Loco-Version: 2.6.3; wp-6.1.1\n"
+"X-Domain: cv-generator"
+
+#: CVPostType.php:537
+#, php-format
+msgid ""
+"AAAA You can buy the access to download the CV for %0.2f EUR for %d hours"
+msgstr ""
+
+#: CVPostType.php:534
+msgid "Access status"
+msgstr ""
+
+#: CVPostType.php:522
+msgid "Add"
+msgstr ""
+
+#: CVPostType.php:528
+msgid "Back"
+msgstr ""
+
+#: CVPostType.php:539
+msgid "Buy"
+msgstr ""
+
+#. Name of the plugin
+msgid "CV Generator"
+msgstr ""
+
+#: CVPostType.php:533
+msgid "CV preview"
+msgstr ""
+
+#: CVPostType.php:524
+msgid "Delete video"
+msgstr ""
+
+#: CVPostType.php:546
+msgid "Download CV"
+msgstr ""
+
+#: CVPostType.php:545
+msgid "Edit CV"
+msgstr ""
+
+#: CVPostType.php:93
+msgid "Education"
+msgstr ""
+
+#: CVStripePayment.php:95
+msgid "Error with the payment 200-100"
+msgstr ""
+
+#: CVStripePayment.php:107
+msgid "Error with the payment 200-200."
+msgstr ""
+
+#: CVSettings.php:23
+msgid ""
+"For how many hours should the CV be available after purchase?<span "
+"style='color: red'>*</span>"
+msgstr ""
+
+#: CVPostType.php:544
+msgid "Home"
+msgstr ""
+
+#: CVSettings.php:50
+msgid "Hours cannot be less than 0"
+msgstr ""
+
+#: CVLanguages.php:29
+msgid "invalid_language_code"
+msgstr ""
+
+#: CVPostType.php:42 CVSettings.php:13 CVSettings.php:15
+msgid "Languages"
+msgstr ""
+
+#. Author of the plugin
+msgid "MX"
+msgstr ""
+
+#: CVLanguages.php:74
+msgid "Nonce incorrect!"
+msgstr ""
+
+#: CVStripePayment.php:101
+msgid "Payment did not succeed (10002)"
+msgstr ""
+
+#: CVSettings.php:18
+msgid "Payments"
+msgstr ""
+
+#: CVPostType.php:23
+msgid "Personal information"
+msgstr ""
+
+#: CVSettings.php:42
+msgid "Price cannot be less than 0"
+msgstr ""
+
+#: CVSettings.php:26
+msgid "Price for product 1 access, EUR<span style='color: red'>*</span>"
+msgstr ""
+
+#: CVSettings.php:32
+msgid "Product description"
+msgstr ""
+
+#: CVSettings.php:29
+msgid "Product name<span style='color: red'>*</span>"
+msgstr ""
+
+#: CVPostType.php:526
+msgid "Record new video"
+msgstr ""
+
+#: CVPostType.php:523
+msgid "Remove"
+msgstr ""
+
+#: CVPostType.php:520
+msgid "Save"
+msgstr ""
+
+#: CVPostType.php:521
+msgid "Save and continue"
+msgstr ""
+
+#: CVPostType.php:532
+msgid "Set thumbnail on this video second"
+msgstr ""
+
+#: CVPostType.php:529
+msgid "Start recording"
+msgstr ""
+
+#: CVPostType.php:530
+msgid "Stop recording"
+msgstr ""
+
+#: CVSettings.php:20
+msgid "Stripe API key<span style='color: red'>*</span>"
+msgstr ""
+
+#: CVStripePayment.php:99
+msgid "Thanks for your order, now you can download your CV"
+msgstr ""
+
+#. Description of the plugin
+msgid "This plugin has 2 parts: authentication with OTP and CV generator"
+msgstr ""
+
+#: CVPostType.php:525
+msgid "Upload video"
+msgstr ""
+
+#: CVPostType.php:115
+msgid "Video"
+msgstr ""
+
+#: CVPostType.php:531
+msgid "Video thumbnail"
+msgstr ""
+
+#: CVPostType.php:538
+#, php-format
+msgid "WOOOO the CV for %0.2f EUR for %d hours"
+msgstr ""
+
+#: CVPostType.php:69
+msgid "Work experience"
+msgstr ""
+
+#: CVPostType.php:536
+msgid "You do not have access to the CV"
+msgstr ""
+
+#: CVPostType.php:527
+msgid "You do not have video uploaded or recorder"
+msgstr ""
+
+#: CVPostType.php:535
+msgid "You have access to the CV"
+msgstr ""

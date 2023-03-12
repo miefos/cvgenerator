@@ -1,21 +1,27 @@
 <?php
 
+use Couchbase\User;
 use FFMpeg\Coordinate\TimeCode;
 
 require_once "PDFCV.php";
 require_once "helpers.php";
 
 class CVPostType {
-	public function __construct(CVSettings $settings, $stripe_message) {
+	public function __construct(CVSettings $settings) {
 		add_action( 'init', [$this, 'cv_post_type'], 0);
 		add_action( 'transition_post_status', [$this, 'prevent_publishing_posts_publicly'], 10, 3 );
 		add_shortcode( 'cv_frontend_fields', [$this, 'cv_frontend_fields_shortcode_html'] );
+
+//        $userId = get_current_user_id();
+//		$paid = get_user_meta($userId, 'cvgenerator_paid', true);
+//		$paid_at = get_user_meta($userId, 'cvgenerator_paid_at', true);
+//
+//        dd($paid, $paid_at);
 
         $this->settings = $settings;
         $this->nonce_name = 'wp_rest';
 
 		$this->thumbnail_filename = "thumbnail.jpeg";
-        $this->stripe_message = $stripe_message;
 
 		$this->sections = array(
             // section 1
@@ -160,8 +166,7 @@ class CVPostType {
 
 			register_rest_route($this->api['get_video'][0], $this->api['get_video'][1], array(
 				'methods'         => 'GET',
-				'callback'        => [ $this, 'api_get_video' ],
-				'current_user_id' => get_current_user_id(), // This will be pass to the rest API callback
+				'callback'        => [ $this, 'api_get_video' ]
 			));
 
 			register_rest_route($this->api['remove_video'][0], $this->api['remove_video'][1], array(
@@ -276,12 +281,36 @@ class CVPostType {
     }
 
 	public function api_get_video($data) {
-		$current_user_id = intval( $data->get_attributes()['current_user_id'] ); // !! this comes from php not js
-		if (!$current_user_id) {
+        $video_uuid = $data->get_params()['q'] ?? '';
+        if (strlen($video_uuid) < 32) {
+	        wp_die("Video not found - q parameter not defined or invalid.");
+        }
+
+		$args = array(
+			'number' => 1,
+			'meta_query' => array(
+				array(
+					'key' => 'cv_generator_video_url_param',
+					'value' => $video_uuid,
+					'compare' => '='
+				)
+			)
+		);
+
+		$users = get_users($args);
+
+		if (count($users) !== 1) {
+            wp_die("Video not found - q parameter not defined or invalid.");
+		}
+
+        $user = $users[0];
+
+        $userId = intval($user->ID);
+		if (!$userId) {
 			wp_die('You should be logged in!');
 		}
-		$uniq_video_id = get_user_meta($current_user_id, 'cv_generator_media_folder_id', true);
-		$video_filename = get_user_meta($current_user_id, 'cv_generator_video_filename', true);
+		$uniq_video_id = get_user_meta($userId, 'cv_generator_media_folder_id', true);
+		$video_filename = get_user_meta($userId, 'cv_generator_video_filename', true);
 		if (!$uniq_video_id) {
 			return null;
 		}
@@ -382,6 +411,24 @@ class CVPostType {
 			$uniq_id = uniqid();
 			$uploadDir = $baseDir . $uniq_id . "/";
 		} while (file_exists($uploadDir));
+
+        // generate meta value (unique video url query) for user if the user does not have already
+		$existing_meta_value = get_user_meta($current_user_id, 'cv_generator_video_url_param', true);
+
+		if (empty($existing_meta_value)) {
+			$unique = false;
+			while (!$unique) {
+				$random_string = bin2hex(random_bytes(32));
+				$existing_user = get_users(array(
+					'meta_key' => 'cv_generator_video_url_param',
+					'meta_value' => $random_string
+				));
+				if (empty($existing_user)) {
+					$unique = true;
+					add_user_meta($current_user_id, 'cv_generator_video_url_param', $random_string);
+				}
+			}
+		}
 
         // Check if a file was uploaded
         if (isset($_FILES['video']) && $_FILES['video']['error'] === UPLOAD_ERR_OK) {
@@ -511,7 +558,7 @@ class CVPostType {
         return [
             'data' => [
                 'screen_type' => 'cv_post_frontend_fields',
-                'stripe_message' => $this->stripe_message,
+                'public_video_url' => get_user_meta(get_current_user_id(), 'cv_generator_video_url_param', true),
                 'left_minutes_for_payment' => CVStripePayment::getCurrentUserHowManyLeftMinutes(),
                 'user_has_video' => cv_generator_user_has_video(),
                 'sections' => $this->sections,
