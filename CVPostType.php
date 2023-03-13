@@ -12,6 +12,14 @@ class CVPostType {
 		add_action( 'transition_post_status', [$this, 'prevent_publishing_posts_publicly'], 10, 3 );
 		add_shortcode( 'cv_frontend_fields', [$this, 'cv_frontend_fields_shortcode_html'] );
 
+        // Add custom column to admin dashboard table
+		add_filter( 'manage_cv_posts_columns', [$this, 'my_custom_post_type_columns'] );
+        // Output content for custom column
+		add_action( 'manage_cv_posts_custom_column', [$this, 'my_custom_post_type_column_content'], 10, 2 );
+
+        // Metabox admin dashboard
+		add_action( 'add_meta_boxes', [$this, 'wpse_custom_meta_box'] );
+
 //        $userId = get_current_user_id();
 //		$paid = get_user_meta($userId, 'cvgenerator_paid', true);
 //		$paid_at = get_user_meta($userId, 'cvgenerator_paid_at', true);
@@ -195,6 +203,48 @@ class CVPostType {
 
         });
     }
+
+    function wpse_custom_meta_box() {
+	    add_meta_box(
+		    'cv_meta_box', // ID
+		    'Data', // Title
+		    [$this, 'cv_meta_box_callback'], // Callback function
+		    'cv', // Post type
+		    'normal', // Context
+		    'high' // Priority
+	    );
+    }
+
+	// Output the HTML for the metabox
+	function cv_meta_box_callback( $post ) {
+        echo $this->cv_frontend_fields_shortcode_html(null, $post->post_author);
+	}
+
+    // Add custom column to admin dashboard table
+	function my_custom_post_type_columns( $columns ) {
+		$new_columns = array();
+		foreach ( $columns as $key => $value ) {
+			$new_columns[$key] = $value;
+			if ( $key == 'title' ) {
+				$new_columns['cv_paid_minutes_left'] = 'Paid Minutes Left';
+				$new_columns['cv_author_email'] = 'Author\'s email';
+			}
+		}
+		return $new_columns;
+	}
+
+
+	// Output content for custom column
+	function my_custom_post_type_column_content( $column_name, $post_id ) {
+        $authorID = get_post($post_id)->post_author;
+        $author = get_user_by('id', $authorID);
+		if ( $column_name == 'cv_paid_minutes_left' ) {
+			$value = intval(CVStripePayment::getCurrentUserHowManyLeftMinutes($authorID));
+			echo esc_html( $value );
+		} else if ($column_name == 'cv_author_email') {
+            echo esc_html( $author->user_email );
+        }
+	}
 
     public function api_get_thumbnail($data) {
 	    $current_user_id = intval( $data->get_attributes()['current_user_id'] ); // !! this comes from php not js
@@ -602,7 +652,18 @@ class CVPostType {
 		];
 	}
 
-	function cv_frontend_fields_shortcode_html( $atts ) {
+	function cv_frontend_fields_shortcode_html( $atts, $userID = null ) {
+        if ($userID) {
+            echo 'User #' . $userID . ' CV';
+            echo "Note that you cannot edit this CV if it is not your own.";
+
+	        // Save the current user ID for later
+	        $previous_current_user_id = get_current_user_id();
+
+            // Set the current user ID to the ID of the user you want to impersonate
+	        wp_set_current_user( $userID );
+        }
+
 		$cv = cv_generator_get_current_users_cv();
 
 		if (is_user_logged_in()) {
@@ -622,15 +683,18 @@ class CVPostType {
                 }
             }
 
-			if (!is_admin()) {
-				wp_enqueue_style("cv_generator_cvpost_frontend_style", plugin_dir_url(__FILE__) . 'dist-vue/assets/index.css', [], '1.0');
-				wp_enqueue_script( "cv_generator_cvpost_frontend_vue", plugin_dir_url( __FILE__ ) . 'dist-vue/assets/index.js');
-			}
+            wp_enqueue_style("cv_generator_cvpost_frontend_style", plugin_dir_url(__FILE__) . 'dist-vue/assets/index.css', [], '1.0');
+            wp_enqueue_script( "cv_generator_cvpost_frontend_vue", plugin_dir_url( __FILE__ ) . 'dist-vue/assets/index.js');
 
 			ob_start(); ?>
 			<div class="w-full" id="cv_generator" data-js="<?= esc_attr(wp_json_encode($this->data_to_javascript($cv))) ?>"></div>
 
 			<?php
+
+			if ($userID && $previous_current_user_id) {
+				wp_set_current_user( $previous_current_user_id );
+			}
+
 			return ob_get_clean();
 		}
 	}
