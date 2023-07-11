@@ -3,12 +3,20 @@
 use FFMpeg\FFMpeg;
 use FFMpeg\Format\Video\WebM;
 
+function cv_generator_set_unique_media_id($baseDir, $current_user_id) {
+	do {
+		$media_uniq_id = uniqid();
+		$uploadDir     = $baseDir . $media_uniq_id . "/";
+	} while ( file_exists( $uploadDir ) );
+	update_user_meta($current_user_id, 'cv_generator_media_folder_id', $media_uniq_id);
+}
+
 function cv_generator_user_has_video($current_user_id_backup = null) {
 	$current_user_id = wp_get_current_user()->ID;
 	if (!$current_user_id)
 		$current_user_id = $current_user_id_backup;
 
-	$uniq_video_id = get_user_meta($current_user_id, 'cv_generator_media_folder_id', true);
+	$uniq_video_id = get_user_meta($current_user_id, 'cv_generator_video_filename', true);
 	if (!$uniq_video_id) {
 		return false;
 	}

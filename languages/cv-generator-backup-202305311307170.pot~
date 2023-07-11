@@ -1,0 +1,555 @@
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: CV Generator\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-05-31 13:06+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: \n"
+"Language: \n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Loco https://localise.biz/\n"
+"X-Loco-Version: 2.6.3; wp-6.1.1\n"
+"X-Domain: cv-generator"
+
+#: CVPostType.php:738
+msgid "Access status"
+msgstr ""
+
+#: CVPostType.php:725
+msgid "Add"
+msgstr ""
+
+#: CVPostType.php:719
+msgid "April"
+msgstr ""
+
+#: CVPostType.php:719
+msgid "August"
+msgstr ""
+
+#: CVGeneratorAuthentication.php:72
+msgid "Authenticate"
+msgstr ""
+
+#: CVGeneratorAuthentication.php:96
+msgid "Authentication successful"
+msgstr ""
+
+#: CVPostType.php:84
+msgid "Average"
+msgstr ""
+
+#: CVPostType.php:731
+msgid "Back"
+msgstr ""
+
+#: CVPostType.php:84
+msgid "Basics"
+msgstr ""
+
+#: assets/cv-templates/cv_template.php:195
+msgid "Bio"
+msgstr ""
+
+#: CVPostType.php:56
+msgid "Biography"
+msgstr ""
+
+#: CVPostType.php:743
+msgid "Buy"
+msgstr ""
+
+#: assets/cv-templates/cv_template.php:214
+msgid "Click to view the video"
+msgstr ""
+
+#: CVPostType.php:107
+msgid "Company"
+msgstr ""
+
+#: CVPostType.php:723
+msgid "Continue"
+msgstr ""
+
+#. Name of the plugin
+msgid "CV Generator"
+msgstr ""
+
+#: CVPostType.php:737
+msgid "CV preview"
+msgstr ""
+
+#: CVPostType.php:719
+msgid "December"
+msgstr ""
+
+#: CVPostType.php:727
+msgid "Delete video"
+msgstr ""
+
+#: CVPostType.php:111
+msgid "Description"
+msgstr ""
+
+#: assets/cv-templates/cv_template.php:162
+msgid "Digital Skills"
+msgstr ""
+
+#: CVPostType.php:59
+msgid "Digital skills"
+msgstr ""
+
+#: CVPostType.php:744
+msgid "Download CV"
+msgstr ""
+
+#: assets/cv-templates/cv_template.php:152
+msgid "Driving license"
+msgstr ""
+
+#: CVPostType.php:750
+msgid "Edit CV"
+msgstr ""
+
+#: CVPostType.php:119 CVPostType.php:126
+#: assets/cv-templates/cv_template.php:226
+msgid "Education"
+msgstr ""
+
+#: CVGeneratorAuthentication.php:67
+msgid "Email"
+msgstr ""
+
+#: CVGeneratorAuthentication.php:206
+msgid "Email already registered. Please contact system administrator."
+msgstr ""
+
+#: CVGeneratorAuthentication.php:245
+msgid "Email format invalid"
+msgstr ""
+
+#: CVGeneratorAuthentication.php:189
+msgid "Email is not registered. Please contact system administrator."
+msgstr ""
+
+#: CVGeneratorAuthentication.php:237
+msgid "Email not set"
+msgstr ""
+
+#: assets/cv-templates/cv_template.php:126
+msgid "Email: "
+msgstr ""
+
+#: assets/cv-templates/cv_template.php:256
+msgid "Employment History"
+msgstr ""
+
+#: CVPostType.php:80
+msgid "English"
+msgstr ""
+
+#: CVGeneratorAuthentication.php:193 CVGeneratorAuthentication.php:215
+msgid "Error generating OTP code. Please contact system administrator."
+msgstr ""
+
+#: CVGeneratorAuthentication.php:219
+msgid "Error registering your user. Please contact system administrator."
+msgstr ""
+
+#: CVGeneratorAuthentication.php:224
+msgid ""
+"Error sending OTP code to your email. Please contact system administrator."
+msgstr ""
+
+#: CVGeneratorAuthentication.php:199
+msgid "Error sending OTP code. Please contact system administrator."
+msgstr ""
+
+#: CVPostType.php:614
+msgid "Error uploading video 10000300"
+msgstr ""
+
+#: CVPostType.php:591
+msgid "Error uploading video 10000400"
+msgstr ""
+
+#: CVPostType.php:601
+msgid "Error uploading video 10000500"
+msgstr ""
+
+#: CVPostType.php:84
+msgid "Excellent"
+msgstr ""
+
+#: CVPostType.php:719
+msgid "February"
+msgstr ""
+
+#: CVPostType.php:724
+msgid "Finish CV"
+msgstr ""
+
+#: CVSettings.php:26
+msgid ""
+"For how many hours should the CV be available after purchase?<span "
+"style='color: red'>*</span>"
+msgstr ""
+
+#: CVPostType.php:109 CVPostType.php:133
+msgid "From"
+msgstr ""
+
+#: CVPostType.php:84
+msgid "Good"
+msgstr ""
+
+#: CVPostType.php:57 assets/cv-templates/cv_template.php:182
+msgid "Hobbies"
+msgstr ""
+
+#: CVSettings.php:53
+msgid "Hours cannot be less than 0"
+msgstr ""
+
+#: CVPostType.php:132
+msgid "I am currently learning here"
+msgstr ""
+
+#: CVPostType.php:108
+msgid "I am currently working here"
+msgstr ""
+
+#: CVPostType.php:61
+msgid "I have driving license"
+msgstr ""
+
+#: CVPostType.php:58
+msgid "Interests"
+msgstr ""
+
+#: CVPostType.php:530
+msgid "Invalid file type. Only MP4 and webm files are allowed."
+msgstr ""
+
+#: CVPostType.php:537
+msgid "Invalid file type. Only video files are allowed."
+msgstr ""
+
+#: CVGeneratorAuthentication.php:232 CVPostType.php:651
+msgid "Invalid nonce"
+msgstr ""
+
+#: CVLanguages.php:29
+msgid "invalid_language_code"
+msgstr ""
+
+#: CVPostType.php:719
+msgid "January"
+msgstr ""
+
+#: CVPostType.php:719
+msgid "July"
+msgstr ""
+
+#: CVPostType.php:719
+msgid "June"
+msgstr ""
+
+#: CVPostType.php:79
+msgid "Language name"
+msgstr ""
+
+#: CVSettings.php:13 CVSettings.php:15 CVPostType.php:67 CVPostType.php:74
+#: assets/cv-templates/cv_template.php:136
+msgid "Languages"
+msgstr ""
+
+#: CVPostType.php:80
+msgid "Latvian"
+msgstr ""
+
+#: CVGeneratorAuthentication.php:71
+msgid "Login or Register"
+msgstr ""
+
+#: CVGeneratorAuthentication.php:66
+msgid "Login or register aa"
+msgstr ""
+
+#: CVPostType.php:719
+msgid "March"
+msgstr ""
+
+#: CVPostType.php:719
+msgid "May"
+msgstr ""
+
+#. Author of the plugin
+msgid "MX"
+msgstr ""
+
+#: CVPostType.php:749
+msgid "My CV"
+msgstr ""
+
+#: CVPostType.php:53
+msgid "Name"
+msgstr ""
+
+#: CVPostType.php:84
+msgid "Native"
+msgstr ""
+
+#: CVLanguages.php:107
+msgid "Nonce incorrect!"
+msgstr ""
+
+#: CVPostType.php:719
+msgid "November"
+msgstr ""
+
+#: CVPostType.php:719
+msgid "October"
+msgstr ""
+
+#: CVPostType.php:60
+msgid "Other skills"
+msgstr ""
+
+#: CVGeneratorAuthentication.php:172
+msgid "OTP code could not be sent. Please contact system administrator."
+msgstr ""
+
+#: CVGeneratorAuthentication.php:93
+msgid "OTP code is invalid"
+msgstr ""
+
+#: CVGeneratorAuthentication.php:197
+msgid "OTP code sent to your email"
+msgstr ""
+
+#: CVGeneratorAuthentication.php:222
+msgid "OTP code sent to your email."
+msgstr ""
+
+#: CVStripePayment.php:150
+msgid "Payment successful!"
+msgstr ""
+
+#: CVSettings.php:18
+msgid "Payments"
+msgstr ""
+
+#: CVPostType.php:47 assets/cv-templates/cv_template.php:121
+msgid "Personal information"
+msgstr ""
+
+#: CVPostType.php:55
+msgid "Phone"
+msgstr ""
+
+#: assets/cv-templates/cv_template.php:123
+msgid "Phone: "
+msgstr ""
+
+#: CVPostType.php:106
+msgid "Position"
+msgstr ""
+
+#: CVSettings.php:45
+msgid "Price cannot be less than 0"
+msgstr ""
+
+#: CVSettings.php:29
+msgid "Price for product 1 access, EUR<span style='color: red'>*</span>"
+msgstr ""
+
+#: CVSettings.php:35
+msgid "Product description"
+msgstr ""
+
+#: CVSettings.php:32
+msgid "Product name<span style='color: red'>*</span>"
+msgstr ""
+
+#: CVGeneratorAuthentication.php:70
+msgid "Received code"
+msgstr ""
+
+#: CVPostType.php:729
+msgid "Record new video"
+msgstr ""
+
+#: CVGeneratorAuthentication.php:221
+msgid "Registration successful"
+msgstr ""
+
+#: CVPostType.php:726
+msgid "Remove"
+msgstr ""
+
+#: CVGeneratorAuthentication.php:69
+msgid "Resend code"
+msgstr ""
+
+#: CVPostType.php:80
+msgid "Russian"
+msgstr ""
+
+#: CVPostType.php:722
+msgid "Save"
+msgstr ""
+
+#: CVPostType.php:131
+msgid "School"
+msgstr ""
+
+#: CVPostType.php:719
+msgid "September"
+msgstr ""
+
+#: CVPostType.php:736
+msgid "Set thumbnail on this video second"
+msgstr ""
+
+#: assets/cv-templates/cv_template.php:172
+msgid "Skills"
+msgstr ""
+
+#: CVPostType.php:325
+msgid "Some error happened during saving thumbnail!"
+msgstr ""
+
+#: CVPostType.php:319
+msgid "Some error happened during saving thumbnail! Time not set."
+msgstr ""
+
+#: CVGeneratorAuthentication.php:196
+msgid "Someone tried to login in your account"
+msgstr ""
+
+#: CVGeneratorAuthentication.php:196
+msgid "Someone tried to login. Your OTP code is "
+msgstr ""
+
+#: CVPostType.php:732
+msgid "Start recording"
+msgstr ""
+
+#: CVPostType.php:733
+msgid "Stop recording"
+msgstr ""
+
+#: CVSettings.php:20
+msgid "Stripe API key<span style='color: red'>*</span>"
+msgstr ""
+
+#: CVSettings.php:23
+msgid "Stripe Webhook secret<span style='color: red'>*</span>"
+msgstr ""
+
+#: CVPostType.php:54
+msgid "Surname"
+msgstr ""
+
+#: CVGeneratorAuthentication.php:221
+msgid "The registration is successful. Your OTP code is "
+msgstr ""
+
+#. Description of the plugin
+msgid "This plugin has 2 parts: authentication with OTP and CV generator"
+msgstr ""
+
+#: CVPostType.php:735
+msgid ""
+"This video thumbnail will be shown in your CV. You can change it to any "
+"frame of the video by setting the video player to the frame you want, and "
+"pressing the button to set thumbnail."
+msgstr ""
+
+#: CVPostType.php:328
+msgid "Thumbnail saved!"
+msgstr ""
+
+#: CVPostType.php:110 CVPostType.php:134
+msgid "To"
+msgstr ""
+
+#: CVGeneratorAuthentication.php:80 CVGeneratorAuthentication.php:159
+msgid "Too many requests. Please try again later."
+msgstr ""
+
+#: CVPostType.php:728
+msgid "Upload video (MP4)"
+msgstr ""
+
+#: CVPostType.php:142 CVPostType.php:149
+#: assets/cv-templates/cv_template.php:208
+msgid "Video"
+msgstr ""
+
+#: CVPostType.php:569
+msgid "Video file name is too long!"
+msgstr ""
+
+#: CVPostType.php:562
+msgid "Video length exceeds the allowed limit of 120 seconds."
+msgstr ""
+
+#: CVPostType.php:374
+msgid "Video removed successfully!"
+msgstr ""
+
+#: CVPostType.php:734
+msgid "Video thumbnail"
+msgstr ""
+
+#: CVPostType.php:94 CVPostType.php:101
+msgid "Work experience"
+msgstr ""
+
+#: assets/cv-templates/cv_template.php:153
+msgid "Yes"
+msgstr ""
+
+#: CVPostType.php:741
+#, php-format
+msgid "You can buy the access to download the CV for %0.2f EUR for %d hours"
+msgstr ""
+
+#: CVGeneratorAuthentication.php:68
+msgid "You can resend code in "
+msgstr ""
+
+#: CVPostType.php:730
+msgid "You do not have video uploaded or recorder"
+msgstr ""
+
+#: CVPostType.php:739
+msgid "You have access to the CV until"
+msgstr ""
+
+#: CVPostType.php:640
+msgid "You have not paid for the CV."
+msgstr ""
+
+#: CVStripePayment.php:151
+msgid "You have paid successfully."
+msgstr ""
+
+#: CVPostType.php:740
+msgid "You need to buy access to the CV to download it."
+msgstr ""
+
+#: CVPostType.php:369
+msgid "You should be logged in!"
+msgstr ""
+
+#: CVPostType.php:742
+msgid "Your publicly accessible video is here: "
+msgstr ""

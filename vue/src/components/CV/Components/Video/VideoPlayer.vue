@@ -1,6 +1,6 @@
 <template>
   <div ref="videoPlayerDiv" class="my-2">
-      <video class="video-js vjs-theme-city vjs-big-play-centered">
+      <video class="video-js vjs-theme-city vjs-big-play-centered" controls style="max-width: 100%;">
         <source :src="url" type="video/mp4" />
         <source :src="url" type="video/webm" />
         <p class="vjs-no-js">To view this video please enable JavaScript, and consider upgrading to a web browser that<a href="https://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a></p>
@@ -24,6 +24,12 @@ export default {
         width: 640,
         liveui: false, // disable live message,
         preload: 'auto',
+        controlBar: {
+          pictureInPictureToggle: false,
+          remainingTimeDisplay: {
+            displayNegative: false,
+          }
+        }
       },
     }
   },

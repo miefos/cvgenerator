@@ -1,11 +1,7 @@
-<?php
-//$user_thumbnail_url
-
-?>
 <!DOCTYPE html>
 <html>
 <head>
-	<title>My CV</title>
+	<title>CV</title>
     <meta charset="UTF-8">
 	<style>
         /* Apply box-sizing to all elements */
@@ -22,11 +18,9 @@
             padding: 0;
         }
 
-        .container {
-            display: block;
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 20px;
+        a {
+            text-decoration: none;
+            color: black;
         }
 
         h1 {
@@ -34,10 +28,6 @@
             font-weight: bold;
             text-align: center;
             margin-bottom: 20px;
-        }
-
-        .row {
-            display: block;
         }
 
         .left-column {
@@ -54,18 +44,15 @@
             position: relative;
         }
 
-        .section-heading {
+        .left-section-heading {
             font-weight: bold;
-            margin-bottom: 10px;
         }
 
-        .bio {
-            margin-top: 20px;
-        }
-
-        .title {
+        .right-section-heading {
             font-weight: bold;
-            margin-bottom: 5px;
+            font-size: 20px;
+            display: inline-block;
+            vertical-align: middle;
         }
 
         .date {
@@ -74,104 +61,225 @@
             margin-bottom: 10px;
         }
 
-        .duties {
-            margin-left: 20px;
-        }
-
-        .image {
-            position: absolute;
-            bottom: 0;
-            max-width: 200px;
-            max-height: 200px;
-            padding: 5px;
-            cursor: pointer;
-        }
-
         .icon {
-            width: 28px;
-            height: 28px;
-            margin-right: 18px;
-            margin-left: 4px;
+            width: 24px;
+            height: 24px;
             vertical-align: middle;
-            margin-bottom: 4px;
+        }
+
+        section {
+            margin-bottom: 20px;
+        }
+
+        .list-item {
+            margin-bottom: 20px;
+            page-break-inside: avoid;
+        }
+
+        .list-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .list-item-heading {
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .right-column section > :nth-child(2) {
+            margin-left: 30px;
+        }
+
+        ul {
+            margin-left: 18px;
+            padding-left: 0;
+        }
+
+        ul > li {
+            margin-bottom: 15px;
+        }
+
+        ul > li:last-child {
+            margin-bottom: 0;
         }
 	</style>
     <link rel="stylesheet" href="./verticalTimeline.css">
 </head>
 <body>
-<div class="container">
+<a href="<?= get_home_url(); ?>" target="_blank"
+   style="
+        position: absolute;
+        top: -10px;
+        left: 0;
+    ">
+    <img width="90" src="data:image/svg+xml;base64,<?= $base64_logo; ?>"/>
+</a>
+<div class="">
 	<h1><?= $cvmeta['field_name'][0] . ' ' . $cvmeta['field_surname'][0] ?></h1>
-	<div class="row">
+    <div class="">
 		<div class="left-column">
-			<div class="section-heading">Languages</div>
-			<p>English, Spanish, French</p>
-			<div class="section-heading">Details</div>
-			<p>123 Main St. | Anytown, USA | (123) 456-7890 | email@example.com</p>
-			<div class="section-heading">Driving License</div>
-			<p>Yes, valid license</p>
-			<div class="section-heading">Skills</div>
-			<p>Microsoft Office, Adobe Creative Suite, HTML/CSS, JavaScript, Project Management</p>
-            <?php if (isset($user_thumbnail_url)): ?>
-			    <a href="/hey" class="image"><img width="200" src="data:image/png;base64,<?=base64_encode(file_get_contents($user_thumbnail_url))?>"></a>
-            <?php endif;?>
+            <section>
+                <div class="left-section-heading"><?php _e('Personal information', 'cv-generator'); ?></div>
+                <div>
+	                <?php _e('Phone: ', 'cv-generator'); ?> <a href="tel:<?=$cvmeta['field_phone'][0]?>">
+                        <?=$cvmeta['field_phone'][0]?>
+                    </a> <br />
+	                <?php _e('Email: ', 'cv-generator'); ?>
+                    <a href="mailto:<?=$user_email?>">
+	                    <?=$user_email?>
+                    </a>
+                </div>
+            </section>
+            <?php
+            if (json_decode($cvmeta['field_languages'][0], true)):
+            ?>
+            <section>
+                <div class="left-section-heading"><?php _e('Languages', 'cv-generator'); ?></div>
+                <div>
+                    <?php
+                    foreach (json_decode($cvmeta['field_languages'][0], true) as $lang):
+                        echo $lang['field_language_name'] . ' - ' . $lang['field_proficiency'] . "<br />";
+                    endforeach;
+                    ?>
+                </div>
+            </section>
+            <?php
+            endif;
+            ?>
+			<?php
+			if ($cvmeta['field_i_have_driving_license'][0]):
+			?>
+            <section>
+			    <div class="left-section-heading"><?php _e('Driving license', 'cv-generator'); ?></div>
+                <div><?php _e('Yes', 'cv-generator')?></div>
+            </section>
+            <?php
+            endif;
+            ?>
+			<?php
+			if ($cvmeta['field_digital_skills'][0]):
+			?>
+            <section>
+                <div class="left-section-heading"><?php _e('Digital Skills', 'cv-generator'); ?></div>
+                <div><?= $cvmeta['field_digital_skills'][0] ?></div>
+            </section>
+            <?php
+            endif;
+            ?>
+			<?php
+			if ($cvmeta['field_other_skills'][0]):
+			?>
+            <section>
+                <div class="left-section-heading"><?php _e('Skills', 'cv-generator'); ?></div>
+                <div><?= $cvmeta['field_other_skills'][0] ?></div>
+            </section>
+			<?php
+			endif;
+			?>
+			<?php
+			if ($cvmeta['field_hobbies'][0]):
+			?>
+            <section>
+                <div class="left-section-heading"><?php _e('Hobbies', 'cv-generator'); ?></div>
+                <div><?= $cvmeta['field_hobbies'][0] ?></div>
+            </section>
+			<?php
+			endif;
+			?>
         </div>
 		<div class="right-column">
-			<div class="bio section">
-                <h2><img class="icon" src="<?=CVGEN_ASSETS_DIR . '/cv-templates/img.png'?>">Bio</h2>
-                <div class="vtl">
-				    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed vel mauris sit amet lacus faucibus efficitur. Etiam convallis vel nulla ac tincidunt. Cras vel purus ac velit congue bibendum id id enim. Suspendisse in ante neque. Donec et tincidunt justo. </p>
+			<?php if ($cvmeta['field_bio'][0]): ?>
+            <section>
+                <div style="">
+                    <img src="data:image/svg+xml;base64,<?= $base64_user_icon; ?>" class="icon"/>
+                    <span class="right-section-heading">
+                        <?php _e('Bio', 'cv-generator'); ?>
+                    </span>
                 </div>
-			</div>
-			<div class="education section">
-				<h2><img class="icon" src="<?=CVGEN_ASSETS_DIR . '/cv-templates/img.png'?>">Education</h2>
-                <div class="vtl">
-                    <div class="listItem">
-                        <div class="title">Bachelor of Science in Computer Science</div>
-                        <div class="date">September 2014 - May 2018</div>
-                        <div class="duties">
-                            <ul>
-                                <li>Studied various computer science topics including programming, algorithms, and data structures</li>
-                                <li>Participated in extracurricular coding projects and hackathons</li>
-                                <li>Completed a senior thesis on using machine learning for predicting stock prices</li>
-                            </ul>
+                <div>
+                    <?= $cvmeta['field_bio'][0]; ?>
+                </div>
+            </section>
+            <?php endif;?>
+            <?php if (isset($user_thumbnail_url)): ?>
+            <section>
+                <div style="">
+                    <img src="data:image/svg+xml;base64,<?= $base64_video_icon; ?>" class="icon"/>
+                    <span class="right-section-heading">
+                        <?php _e('Video', 'cv-generator'); ?>
+                    </span>
+                </div>
+                <div>
+                    <a href="<?=$video_url?>" class="image" target="_blank" style="text-decoration: none; color: black;">
+                        <img width="100%" src="data:image/png;base64,<?=base64_encode(file_get_contents($user_thumbnail_url))?>" style="border-radius: 10px;">
+                        <?php _e('Click to view the video', 'cv-generator'); ?>
+                    </a>
+                </div>
+            </section>
+			<?php endif;?>
+			<?php if (json_decode($cvmeta['field_education'][0], true)): ?>
+            <section>
+                <div style="">
+                    <img src="data:image/svg+xml;base64,<?= $base64_education_icon; ?>" class="icon"/>
+                    <span class="right-section-heading">
+                        <?php
+                        setlocale( LC_ALL, get_user_locale($current_user_id));
+                        _e('Education', 'cv-generator');
+                        ?>
+                    </span>
+                </div>
+                <div>
+                    <ul>
+	                <?php
+	                foreach (json_decode($cvmeta['field_education'][0], true) as $education):
+                        $schoolName = $education['field_school'] ?? '';
+                        $dateFromEdu = $education['field_from'] ?? '';
+                        $dateToEdu = (array_key_exists('field_still_learning', $education) && $education['field_still_learning']) ? null : $education['field_to'];
+                        ?>
+                    <li>
+                        <div class="list-item">
+                            <div class="list-item-heading"><?=$schoolName?></div>
+                            <div class="date"> <?=cvgen_format_the_date($dateFromEdu)?> - <?=$dateToEdu ? cvgen_format_the_date($dateToEdu) : '...'?> </div>
                         </div>
-                    </div>
+                    </li>
+                    <?php
+	                endforeach;
+	                ?>
+                    </ul>
                 </div>
-            </div>
-			<div class="employment section">
-				<h2><img class="icon" src="<?=CVGEN_ASSETS_DIR . '/cv-templates/img.png'?>">Employment History</h2>
-                <div class="vtl">
-                    <div class="listItem">
-                        <div class="title">Software Engineer at XYZ Company</div>
-                        <div class="date">June 2018 - Present</div>
-                        <div class="duties">
-                            <ul>
-                                <li>Develop and maintain software for the company's flagship product</li>
-                                <li>Collaborate with cross-functional teams to ensure successful product launches</li>
-                                <li>Lead development of new product features and improvements</li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="listItem">
-                        <div class="title">Intern at ABC Corporation</div>
-                        <div class="date">May 2017 - August 2017</div>
-                        <div class="duties">
-                            <ul>
-                                <li>Assisted senior software engineers with programming tasks</li>
-                                <li>Contributed to development of a new software module for the company's product</li>
-                                <li>Participated in team meetings and code reviews</li>
-                            </ul>
-                        </div>
-                    </div>
+            </section>
+			<?php endif;?>
+			<?php if (json_decode($cvmeta['field_work_experience'][0], true)): ?>
+            <section>
+                <div style="">
+                    <img src="data:image/svg+xml;base64,<?= $base64_employment_icon; ?>" class="icon"/>
+                    <span class="right-section-heading">
+                        <?php _e('Employment History', 'cv-generator'); ?>
+                    </span>
                 </div>
-            </div>
-			<div class="hobbies section">
-				<h2><img class="icon" src="<?=CVGEN_ASSETS_DIR . '/cv-templates/img.png'?>">Hobbies and Interests</h2>
-                <div class="vtl">
-				    <p>Traveling, hiking, photography, playing guitar</p>
+                <div>
+                    <ul>
+                    <?php
+					foreach (json_decode($cvmeta['field_work_experience'][0], true) as $work):
+						$position = $work['field_position'] ?? '';
+						$company = $work['field_company'] ?? '';
+						$description = $work['field_description'] ?? '';
+						$dateFromWork = $work['field_from'] ?? '';
+						$dateToWork = (array_key_exists('field_still_working', $work) && $work['field_still_working']) ? null : $work['field_to'];
+                        ?>
+                            <li>
+                                <div class="list-item-heading"><?=$position?></div>
+                                <div> <?=$company?> </div>
+                                <div class="date"> <?=cvgen_format_the_date($dateFromWork)?> - <?=$dateToWork ? cvgen_format_the_date($dateToWork) : '...'?> </div>
+                                <div> <?=$description?> </div>
+                            </li>
+					<?php
+					endforeach;
+					?>
+                    </ul>
                 </div>
-			</div>
-		</div>
+            </section>
+			<?php endif;?>
+        </div>
 	</div>
 </div>
 </body>

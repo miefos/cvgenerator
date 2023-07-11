@@ -55,8 +55,8 @@ class CVStripePayment {
 			exit();
 		} catch(\Stripe\Exception\SignatureVerificationException $e) {
 			// Invalid signature
-			http_response_code(400);
-			exit();
+//			http_response_code(400);
+//			exit();
 		}
 
 		switch ($event->type) {
@@ -104,15 +104,16 @@ class CVStripePayment {
 
 		// set up line item
 		$line_item = array(
-			'name' => $this->product_name,
-			'amount' => $this->price * 100,
-			'currency' => 'eur',
-			'quantity' => 1,
+            'price_data' => array(
+                'unit_amount' => $this->price * 100,
+                'currency' => 'eur',
+                'product_data' => array(
+                    'name' => $this->product_name,
+                    'description' => $this->product_description ?? '',
+                ),
+            ),
+            'quantity' => '1',
 		);
-
-		if (!empty($this->product_description)) {
-			$line_item['description'] = $this->product_description;
-		}
 
 		// Create a Checkout session
 		$session = \Stripe\Checkout\Session::create(array(
@@ -130,9 +131,26 @@ class CVStripePayment {
 		exit();
     }
 
+	// body is used in template
+	private function sendEmail($to_email, $subject, $body) {
+		$signature = get_bloginfo('title') . "<br /> <a href='". get_bloginfo('url') . "'>" . get_bloginfo('url') . "</a>";
+		ob_start();
+		include(CVGEN_PLUGIN_DIR . '/assets/email-templates/otp_code.php');
+		$email_content = ob_get_contents();
+		ob_end_clean();
+		$headers = array('Content-Type: text/html; charset=UTF-8');
+		return wp_mail($to_email, $subject, $email_content, $headers);
+	}
+
 	public function setUserPaidStatus($userId, bool $status) {
         update_user_meta($userId, 'cvgenerator_paid', $status ? 1 : 0);
         update_user_meta($userId, 'cvgenerator_paid_at', time());
+
+		$this->sendEmail(
+			get_user_by('ID', $userId)->user_email,
+			__("Payment successful!", 'cv-generator'),
+			__("You have paid successfully.", 'cv-generator')
+		);
     }
 
 	public static function getCurrentUserHowManyLeftMinutes($userBackupId = false) {
@@ -142,7 +160,9 @@ class CVStripePayment {
 			return false;
 		}
 
-		$userId = $userId ?: $userBackupId;
+		if ($userBackupId) {
+			$userId = $userBackupId;
+		}
 
 		$expireInHours = CVSettings::getExpirationTimeInHours();
 

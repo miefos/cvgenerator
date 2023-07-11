@@ -1,0 +1,565 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: CV Generator\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-02-25 13:24+0000\n"
+"PO-Revision-Date: 2023-04-28 08:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: Latviešu valoda\n"
+"Language: lv\n"
+"Plural-Forms: nplurals=3; plural=n%10==0||( n%100 >= 11 && n%100<=19)? 0 :"
+"(n%10==1 && n%100!=11 ? 1 : 2);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Loco https://localise.biz/\n"
+"X-Loco-Version: 2.6.4; wp-6.2\n"
+"X-Domain: cv-generator"
+
+#: CVPostType.php:738
+msgid "Access status"
+msgstr "Pieejas statuss"
+
+#: CVPostType.php:725
+msgid "Add"
+msgstr "Pievienot"
+
+#: CVPostType.php:719
+msgid "April"
+msgstr "Aprīlis"
+
+#: CVPostType.php:719
+msgid "August"
+msgstr "Augusts"
+
+#: CVGeneratorAuthentication.php:71
+msgid "Authenticate"
+msgstr "Ienākt"
+
+#: CVGeneratorAuthentication.php:95
+msgid "Authentication successful"
+msgstr "Autentifikācija veiksmīga!"
+
+#: CVPostType.php:84
+msgid "Average"
+msgstr "Vidēji"
+
+#: CVPostType.php:731
+msgid "Back"
+msgstr "Atpakaļ"
+
+#: CVPostType.php:84
+msgid "Basics"
+msgstr "Pamatlīmenis"
+
+#: assets/cv-templates/cv_template.php:195
+msgid "Bio"
+msgstr "Apraksts par sevi"
+
+#: CVPostType.php:56
+msgid "Biography"
+msgstr "Apraksts par sevi"
+
+#: CVPostType.php:743
+msgid "Buy"
+msgstr "Nopirkt pieeju"
+
+#: assets/cv-templates/cv_template.php:214
+msgid "Click to view the video"
+msgstr "Spied te, lai apskatītu video"
+
+#: CVPostType.php:107
+msgid "Company"
+msgstr "Uzņēmums"
+
+#: CVPostType.php:723
+msgid "Continue"
+msgstr "Turpināt"
+
+#. Name of the plugin
+msgid "CV Generator"
+msgstr "CV Generator"
+
+#: CVPostType.php:737
+msgid "CV preview"
+msgstr "CV priekšskatījums"
+
+#: CVPostType.php:719
+msgid "December"
+msgstr "Decembris"
+
+#: CVPostType.php:727
+msgid "Delete video"
+msgstr "Izdzēst video"
+
+#: CVPostType.php:111
+msgid "Description"
+msgstr "Apraksts"
+
+#: assets/cv-templates/cv_template.php:162
+msgid "Digital Skills"
+msgstr "Digitālās prasmes"
+
+#: CVPostType.php:59
+msgid "Digital skills"
+msgstr "Digitālās prasmes"
+
+#: CVPostType.php:744
+msgid "Download CV"
+msgstr "Lejupielādēt CV"
+
+#: assets/cv-templates/cv_template.php:152
+msgid "Driving license"
+msgstr "Vadītāja apliecība"
+
+#: CVPostType.php:750
+msgid "Edit CV"
+msgstr "Rediģēt CV"
+
+#: CVPostType.php:119 CVPostType.php:126
+#: assets/cv-templates/cv_template.php:226
+msgid "Education"
+msgstr "Izglītība"
+
+#: CVGeneratorAuthentication.php:66
+msgid "Email"
+msgstr "E-pasts"
+
+#: CVGeneratorAuthentication.php:205
+msgid "Email already registered. Please contact system administrator."
+msgstr "E-pasts jau ir reģistrēts. "
+
+#: CVGeneratorAuthentication.php:244
+msgid "Email format invalid"
+msgstr "E-pasta formāts nav derīgs."
+
+#: CVGeneratorAuthentication.php:188
+msgid "Email is not registered. Please contact system administrator."
+msgstr "E-pasts nav reģistrēts."
+
+#: CVGeneratorAuthentication.php:236
+msgid "Email not set"
+msgstr "E-pasts netika nosūtīts."
+
+#: assets/cv-templates/cv_template.php:126
+msgid "Email: "
+msgstr "E-pasts:"
+
+#: assets/cv-templates/cv_template.php:256
+msgid "Employment History"
+msgstr "Darba pieredze"
+
+#: CVPostType.php:80
+msgid "English"
+msgstr "Angļu valoda"
+
+#: CVGeneratorAuthentication.php:192 CVGeneratorAuthentication.php:214
+msgid "Error generating OTP code. Please contact system administrator."
+msgstr ""
+"Notika kļūda, veidojot vienreizējo pieejas kodu. Lūdzu sazinies ar sistēmas "
+"administratoru. "
+
+#: CVGeneratorAuthentication.php:218
+msgid "Error registering your user. Please contact system administrator."
+msgstr ""
+"Notika kļūda, reģistrējot Jūsu lietotāju. Lūdzu, sazinies ar sistēmas "
+"administratoru."
+
+#: CVGeneratorAuthentication.php:223
+msgid ""
+"Error sending OTP code to your email. Please contact system administrator."
+msgstr ""
+"Notika kļūda, nosūtot vienreizējo pieejas kodu uz e-pastu. Lūdzu sazinies ar "
+"sistēmas administratoru."
+
+#: CVGeneratorAuthentication.php:198
+msgid "Error sending OTP code. Please contact system administrator."
+msgstr ""
+"Notika kļūda, nosūtot vienreizējo pieejas kodu. Lūdzu, sazinies ar sistēmas "
+"administratoru."
+
+#: CVPostType.php:614
+msgid "Error uploading video 10000300"
+msgstr "Notika kļūda augšupielādējot video 10000300."
+
+#: CVPostType.php:591
+msgid "Error uploading video 10000400"
+msgstr "Notika kļūda augšupielādējot video 10000400."
+
+#: CVPostType.php:601
+msgid "Error uploading video 10000500"
+msgstr "Notika kļūda augšupielādējot video 10000500."
+
+#: CVPostType.php:84
+msgid "Excellent"
+msgstr "Izcili"
+
+#: CVPostType.php:719
+msgid "February"
+msgstr "Februāris"
+
+#: CVPostType.php:724
+msgid "Finish CV"
+msgstr "Pabeigt manu CV"
+
+#: CVSettings.php:26
+msgid ""
+"For how many hours should the CV be available after purchase?<span "
+"style='color: red'>*</span>"
+msgstr "Uz cik stundām CV tiek iegādāts?<span style='color: red'>*</span>"
+
+#: CVPostType.php:109 CVPostType.php:133
+msgid "From"
+msgstr "No"
+
+#: CVPostType.php:84
+msgid "Good"
+msgstr "Labi"
+
+#: CVPostType.php:57 assets/cv-templates/cv_template.php:182
+msgid "Hobbies"
+msgstr "Hobiji"
+
+#: CVSettings.php:53
+msgid "Hours cannot be less than 0"
+msgstr "Stundas nevar būt mazāk kā 0"
+
+#: CVPostType.php:132
+msgid "I am currently learning here"
+msgstr "Es te pašlaik mācos"
+
+#: CVPostType.php:108
+msgid "I am currently working here"
+msgstr "Es te pašlaik strādāju"
+
+#: CVPostType.php:61
+msgid "I have driving license"
+msgstr "Man ir vadītāja apliecība"
+
+#: CVPostType.php:58
+msgid "Interests"
+msgstr "Intereses"
+
+#: CVPostType.php:530
+msgid "Invalid file type. Only MP4 and webm files are allowed."
+msgstr "Nederīgs faila formāts. Tikai MP4 un webm video formāti ir atļauti."
+
+#: CVPostType.php:537
+msgid "Invalid file type. Only video files are allowed."
+msgstr "Nederīgs faila formāts. Tikai video faila formāti ir atļauti."
+
+#: CVGeneratorAuthentication.php:231 CVPostType.php:651
+msgid "Invalid nonce"
+msgstr "Sesija beigusies. Lūdzu, pārlādē lapu."
+
+#: CVLanguages.php:29
+msgid "invalid_language_code"
+msgstr "Nederīgs valodas kods"
+
+#: CVPostType.php:719
+msgid "January"
+msgstr "Janvāris"
+
+#: CVPostType.php:719
+msgid "July"
+msgstr "Jūlijs"
+
+#: CVPostType.php:719
+msgid "June"
+msgstr "Jūnijs"
+
+#: CVPostType.php:79
+msgid "Language name"
+msgstr "Valoda"
+
+#: CVSettings.php:13 CVSettings.php:15 CVPostType.php:67 CVPostType.php:74
+#: assets/cv-templates/cv_template.php:136
+msgid "Languages"
+msgstr "Valodu prasmes"
+
+#: CVPostType.php:80
+msgid "Latvian"
+msgstr "Latviešu"
+
+#: CVGeneratorAuthentication.php:70
+msgid "Login or Register"
+msgstr "Ienākt vai reģistrēties"
+
+#: CVPostType.php:719
+msgid "March"
+msgstr "Marts"
+
+#: CVPostType.php:719
+msgid "May"
+msgstr "Maijs"
+
+#. Author of the plugin
+msgid "MX"
+msgstr "MX"
+
+#: CVPostType.php:749
+msgid "My CV"
+msgstr "Mans CV"
+
+#: CVPostType.php:53
+msgid "Name"
+msgstr "Vārds"
+
+#: CVPostType.php:84
+msgid "Native"
+msgstr "Dzimtā"
+
+#: CVLanguages.php:74
+msgid "Nonce incorrect!"
+msgstr "Sesija beigusies. Nonce ir nepareizs."
+
+#: CVPostType.php:719
+msgid "November"
+msgstr "Novembris"
+
+#: CVPostType.php:719
+msgid "October"
+msgstr "Oktobris"
+
+#: CVPostType.php:60
+msgid "Other skills"
+msgstr "Citas prasmes"
+
+#: CVGeneratorAuthentication.php:171
+msgid "OTP code could not be sent. Please contact system administrator."
+msgstr ""
+"Vienreizējais pieejas kods nevarēja tikt nosūtīts. Lūdzu, sazinies ar "
+"sistēmas administratoru."
+
+#: CVGeneratorAuthentication.php:92
+msgid "OTP code is invalid"
+msgstr "Vienreizējais pieejas kods nav derīgs."
+
+#: CVGeneratorAuthentication.php:196
+msgid "OTP code sent to your email"
+msgstr "Vienreizējais pieejas kods nosūtīts uz e-pastu."
+
+#: CVGeneratorAuthentication.php:221
+msgid "OTP code sent to your email."
+msgstr "Vienreizējais pieejas kods nosūtīts uz e-pastu."
+
+#: CVStripePayment.php:150
+msgid "Payment successful!"
+msgstr "Apmaksa veiksmīga!"
+
+#: CVSettings.php:18
+msgid "Payments"
+msgstr "Maksājumi"
+
+#: CVPostType.php:47 assets/cv-templates/cv_template.php:121
+msgid "Personal information"
+msgstr "Personīgā informācija"
+
+#: CVPostType.php:55
+msgid "Phone"
+msgstr "Telefons"
+
+#: assets/cv-templates/cv_template.php:123
+msgid "Phone: "
+msgstr "Telefons:"
+
+#: CVPostType.php:106
+msgid "Position"
+msgstr "Amats"
+
+#: CVSettings.php:45
+msgid "Price cannot be less than 0"
+msgstr "Cena nevar būt zemāka kā 0"
+
+#: CVSettings.php:29
+msgid "Price for product 1 access, EUR<span style='color: red'>*</span>"
+msgstr "Cena produktam 1, EUR<span style='color: red'>*</span>"
+
+#: CVSettings.php:35
+msgid "Product description"
+msgstr "Produkta apraksts"
+
+#: CVSettings.php:32
+msgid "Product name<span style='color: red'>*</span>"
+msgstr "Produkta nosaukums<span style='color: red'>*</span>"
+
+#: CVGeneratorAuthentication.php:69
+msgid "Received code"
+msgstr "Saņemtais kods"
+
+#: CVPostType.php:729
+msgid "Record new video"
+msgstr "Ierakstīt jaunu video"
+
+#: CVGeneratorAuthentication.php:220
+msgid "Registration successful"
+msgstr "Reģistrācija veiksmīga"
+
+#: CVPostType.php:726
+msgid "Remove"
+msgstr "Noņemt"
+
+#: CVGeneratorAuthentication.php:68
+msgid "Resend code"
+msgstr "Nosūtīt kodu atkārtoti"
+
+#: CVPostType.php:80
+msgid "Russian"
+msgstr "Krievu"
+
+#: CVPostType.php:722
+msgid "Save"
+msgstr "Saglabāt"
+
+#: CVPostType.php:131
+msgid "School"
+msgstr "Skola"
+
+#: CVPostType.php:719
+msgid "September"
+msgstr "Septembris"
+
+#: CVPostType.php:736
+msgid "Set thumbnail on this video second"
+msgstr "Uzstādīt video attēlu uz šo video sekundi"
+
+#: assets/cv-templates/cv_template.php:172
+msgid "Skills"
+msgstr "Prasmes"
+
+#: CVPostType.php:325
+msgid "Some error happened during saving thumbnail!"
+msgstr "Notika kļūda, saglabājot video attēlu!"
+
+#: CVPostType.php:319
+msgid "Some error happened during saving thumbnail! Time not set."
+msgstr "Video laiks netika uzstādīts, tādēļ nevarēja saglabāt video attēlu."
+
+#: CVGeneratorAuthentication.php:195
+msgid "Someone tried to login in your account"
+msgstr "Kāds mēģināja ienākt Jūsu kontā"
+
+#: CVGeneratorAuthentication.php:195
+msgid "Someone tried to login. Your OTP code is "
+msgstr "Kāds mēģināja ienākt Jūsu kontā. Jūsu vienreizējās pieejas kods ir "
+
+#: CVPostType.php:732
+msgid "Start recording"
+msgstr "Sākt ierakstīšanu"
+
+#: CVPostType.php:733
+msgid "Stop recording"
+msgstr "Pabeigt ierakstīšanu"
+
+#: CVSettings.php:20
+msgid "Stripe API key<span style='color: red'>*</span>"
+msgstr "Stripe API key<span style='color: red'>*</span>"
+
+#: CVSettings.php:23
+msgid "Stripe Webhook secret<span style='color: red'>*</span>"
+msgstr "Stripe Webhook secret<span style='color: red'>*</span>"
+
+#: CVPostType.php:54
+msgid "Surname"
+msgstr "Uzvārds"
+
+#: CVGeneratorAuthentication.php:220
+msgid "The registration is successful. Your OTP code is "
+msgstr "Reģistrācija veiksmīga. Jūsu vienreizējās pieejas kods ir "
+
+#. Description of the plugin
+msgid "This plugin has 2 parts: authentication with OTP and CV generator"
+msgstr "Šim pluginam ir 2 daļas: autentifikācija ar OTP un CV ģenerators"
+
+#: CVPostType.php:735
+msgid ""
+"This video thumbnail will be shown in your CV. You can change it to any "
+"frame of the video by setting the video player to the frame you want, and "
+"pressing the button to set thumbnail."
+msgstr ""
+"Šis video attēls būs redzams Jūsu CV. To Jūs varat nomainīt uz jebkuru kadru "
+"video, uzstādot video uz konkrēto kadru un spiežot pogu, lai iestatītu video "
+"attēlu."
+
+#: CVPostType.php:328
+msgid "Thumbnail saved!"
+msgstr "Video attēls saglabāts!"
+
+#: CVPostType.php:110 CVPostType.php:134
+msgid "To"
+msgstr "Līdz"
+
+#: CVGeneratorAuthentication.php:79 CVGeneratorAuthentication.php:158
+msgid "Too many requests. Please try again later."
+msgstr "Pārāk daudz pieprasījumu. Lūdzu, mēģiniet vēlreiz vēlāk."
+
+#: CVPostType.php:728
+msgid "Upload video (MP4)"
+msgstr "Augšupielādēt video (MP4)"
+
+#: CVPostType.php:142 CVPostType.php:149
+#: assets/cv-templates/cv_template.php:208
+msgid "Video"
+msgstr "Video"
+
+#: CVPostType.php:569
+msgid "Video file name is too long!"
+msgstr "Video nosaukums ir pārāk garš"
+
+#: CVPostType.php:562
+msgid "Video length exceeds the allowed limit of 120 seconds."
+msgstr "Video garums pārsniedz pieļaujamo garumu 120 sekundes."
+
+#: CVPostType.php:374
+msgid "Video removed successfully!"
+msgstr "Video izdzēsts veiksmīgi!"
+
+#: CVPostType.php:734
+msgid "Video thumbnail"
+msgstr "Video attēls "
+
+#: CVPostType.php:94 CVPostType.php:101
+msgid "Work experience"
+msgstr "Darba pieredze"
+
+#: assets/cv-templates/cv_template.php:153
+msgid "Yes"
+msgstr "Jā"
+
+#: CVPostType.php:741
+#, php-format
+msgid "You can buy the access to download the CV for %0.2f EUR for %d hours"
+msgstr "Jūs varat iegādāties CV par %0.2f EUR uz %d stundām"
+
+#: CVGeneratorAuthentication.php:67
+msgid "You can resend code in "
+msgstr "Jūs varat nosūtīt kodu atkārtoti pēc "
+
+#: CVPostType.php:730
+msgid "You do not have video uploaded or recorder"
+msgstr "Tev nav augšupielādēts vai iegādāts video"
+
+#: CVPostType.php:739
+#| msgid "You have access to the CV"
+msgid "You have access to the CV until"
+msgstr "Jums ir nopirkta pieeja CV līdz "
+
+#: CVPostType.php:640
+msgid "You have not paid for the CV."
+msgstr "Jūs neesat apmaksājis iespēju lejupielādēt CV."
+
+#: CVStripePayment.php:151
+msgid "You have paid successfully."
+msgstr "Jūs esat apmaksājis veiksmīgi."
+
+#: CVPostType.php:740
+msgid "You need to buy access to the CV to download it."
+msgstr "Jums nepieciešams iegādāties iespēju lejupielādēt CV."
+
+#: CVPostType.php:369
+msgid "You should be logged in!"
+msgstr "Jums ir jābūt ienākušam lietotājam."
+
+#: CVPostType.php:742
+msgid "Your publicly accessible video is here: "
+msgstr "Jūsu publiski pieejamais video ir pieejams šeit:"

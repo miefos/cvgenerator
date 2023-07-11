@@ -1,13 +1,28 @@
 <?php
-
-use Couchbase\User;
 use FFMpeg\Coordinate\TimeCode;
+use FFMpeg\FFMpeg;
+use FFMpeg\Format\Video\WebM;
+use Intervention\Image\ImageManagerStatic as Image;
 
 require_once "PDFCV.php";
 require_once "helpers.php";
 
+const MYAPI = [
+	'update_cv'                     => [ 'cv_generator/cvpost', '/update' ],
+	'download_cv'                   => [ 'cv_generator/cvpost', '/download' ],
+	'upload_video'                  => [ 'cv_generator/cvpost', '/upload_video' ],
+	'get_video'                     => [ 'cv_generator/cvpost', '/get_video' ],
+	'remove_video'                  => [ 'cv_generator/cvpost', '/remove_video' ],
+	'get_thumbnail'                 => [ 'cv_generator/cvpost', '/get_thumbnail' ],
+	'set_thumbnail_by_video_second' => [ 'cv_generator/cvpost', '/set_thumbnail_by_video_second' ],
+	'generate_cv_preview'                => [ 'cv_generator/cvpost', '/generate_cv_preview' ],
+	'get_cv_preview'                => [ 'cv_generator/cvpost', '/get_cv_preview' ],
+	'check_auth'                => [ 'cv_generator/check_auth', '/check_auth' ],
+];
+
 class CVPostType {
 	public function __construct(CVSettings $settings) {
+//        dd(get_user_meta(get_current_user_id() ));
 		add_action( 'init', [$this, 'cv_post_type'], 0);
 		add_action( 'transition_post_status', [$this, 'prevent_publishing_posts_publicly'], 10, 3 );
 		add_shortcode( 'cv_frontend_fields', [$this, 'cv_frontend_fields_shortcode_html'] );
@@ -19,12 +34,6 @@ class CVPostType {
 
         // Metabox admin dashboard
 		add_action( 'add_meta_boxes', [$this, 'wpse_custom_meta_box'] );
-
-//        $userId = get_current_user_id();
-//		$paid = get_user_meta($userId, 'cvgenerator_paid', true);
-//		$paid_at = get_user_meta($userId, 'cvgenerator_paid_at', true);
-//
-//        dd($paid, $paid_at);
 
         $this->settings = $settings;
         $this->nonce_name = 'wp_rest';
@@ -38,16 +47,17 @@ class CVPostType {
                 'id' => 'section_personal_information',
 //                'path' => 'personal_information',
                 'save_button' => true,
-                'icon' => 'pi-user',
+                'icon' => '<svg xmlns="http://www.w3.org/2000/svg" height="26" viewBox="0 96 960 960" width="26"><path d="M480 575q-66 0-108-42t-42-108q0-66 42-108t108-42q66 0 108 42t42 108q0 66-42 108t-108 42ZM160 896v-94q0-38 19-65t49-41q67-30 128.5-45T480 636q62 0 123 15.5t127.921 44.694q31.301 14.126 50.19 40.966Q800 764 800 802v94H160Zm60-60h520v-34q0-16-9.5-30.5T707 750q-64-31-117-42.5T480 696q-57 0-111 11.5T252 750q-14 7-23 21.5t-9 30.5v34Zm260-321q39 0 64.5-25.5T570 425q0-39-25.5-64.5T480 335q-39 0-64.5 25.5T390 425q0 39 25.5 64.5T480 515Zm0-90Zm0 411Z"/></svg>',
                 'fields' => [
-	                [ 'label' => 'Name', 'id' => 'field_name', 'type' => 'text', 'validation' => ['required'] ],
-	                [ 'label' => 'Surname', 'id' => 'field_surname', 'type' => 'text', 'validation' => ['required']],
-	                [ 'label' => 'Phone', 'id' => 'field_phone', 'type' => 'tel', ],
-	                [ 'label' => 'Bio', 'id' => 'field_bio', 'type' => 'textarea', ],
-	                [ 'label' => 'Hobbies', 'id' => 'field_hobbies', 'type' => 'textarea', ],
-	                [ 'label' => 'Interests', 'id' => 'field_interests', 'type' => 'textarea', ],
-	                [ 'label' => 'Other skills', 'id' => 'field_other_skills', 'type' => 'textarea', ],
-	                [ 'label' => 'I have driving license', 'id' => 'field_i_have_driving_license', 'type' => 'yesno', ],
+	                [ 'label' => __('Name', 'cv-generator'), 'id' => 'field_name', 'type' => 'text', 'validation' => ['required'] ],
+	                [ 'label' => __('Surname', 'cv-generator'), 'id' => 'field_surname', 'type' => 'text', 'validation' => ['required']],
+	                [ 'label' => __('Phone', 'cv-generator'), 'id' => 'field_phone', 'type' => 'tel', ],
+	                [ 'label' => __('Biography', 'cv-generator'), 'id' => 'field_bio', 'type' => 'textarea', ],
+	                [ 'label' => __('Hobbies', 'cv-generator'), 'id' => 'field_hobbies', 'type' => 'textarea', ],
+	                [ 'label' => __('Interests', 'cv-generator'), 'id' => 'field_interests', 'type' => 'textarea', ],
+	                [ 'label' => __('Digital skills', 'cv-generator'), 'id' => 'field_digital_skills', 'type' => 'textarea', ],
+	                [ 'label' => __('Other skills', 'cv-generator'), 'id' => 'field_other_skills', 'type' => 'textarea', ],
+	                [ 'label' => __('I have driving license', 'cv-generator'), 'id' => 'field_i_have_driving_license', 'type' => 'yesno', ],
                 ]
             ],
 
@@ -57,20 +67,20 @@ class CVPostType {
               'id' => 'section_languages',
 //              'path' => 'languages',
               'save_button' => true,
-              'icon' => 'pi-flag',
+              'icon' => '<svg xmlns="http://www.w3.org/2000/svg" height="26" viewBox="0 96 960 960" width="26"><path d="M200 936V256h343l19 86h238v370H544l-18.933-85H260v309h-60Zm300-452Zm95 168h145V402H511l-19-86H260v251h316l19 85Z"/></svg>',
               'fields' => [
 	              [
-		              'label' => 'Languages',
+		              'label' => __('Languages', 'cv-generator'),
 		              'id' => 'field_languages',
 		              'type' => 'json',
 		              'extra_type' => 'languages',
 		              'inner_fields' => [
-			              [ 'label' => 'Language name', 'id' => 'field_language_name', 'type' => 'select',
-			                'options' => [ 'English', 'Latvian', 'Russian' ]
+			              [ 'label' => __('Language name', 'cv-generator'), 'id' => 'field_language_name', 'type' => 'select',
+			                'options' => [ __('English', 'cv-generator'), __('Latvian', 'cv-generator'), __('Russian', 'cv-generator') ]
 			              ],
 			              [ 'label' => 'Proficiency', 'id' => 'field_proficiency', 'type' => 'select',
 			                'options' => [
-				                'Native', 'Excellent', 'Good', 'Average', 'Basics'
+				                __('Native', 'cv-generator'), __('Excellent', 'cv-generator'), __('Good', 'cv-generator'), __('Average', 'cv-generator'), __('Basics', 'cv-generator')
 			                ]
 			              ]
 		              ]
@@ -84,19 +94,20 @@ class CVPostType {
               'id' => 'section_work_experience',
 //              'path' => 'work_experience',
               'save_button' => true,
-              'icon' => 'pi-briefcase',
+              'icon' => '<svg xmlns="http://www.w3.org/2000/svg" height="26" viewBox="0 96 960 960" width="26"><path d="M140 936q-24 0-42-18t-18-42V396q0-24 18-42t42-18h180V236q0-24 18-42t42-18h200q24 0 42 18t18 42v100h180q24 0 42 18t18 42v480q0 24-18 42t-42 18H140Zm0-60h680V396H140v480Zm240-540h200V236H380v100ZM140 876V396v480Z"/></svg>',
               'fields' => [
 	              [
-		              'label' => 'Work experience',
+		              'label' => __('Work experience', 'cv-generator'),
 		              'id' => 'field_work_experience',
 		              'type' => 'json',
 		              'extra_type' => 'work_experience',
 		              'inner_fields' => [
-			              ['label' => 'Position', 'id' => 'field_position', 'type' => 'text',],
-			              [ 'label' => 'Company', 'id' => 'field_company', 'type' => 'text', ],
-			              ['label' => 'From', 'id' => 'field_from', 'type' => 'monthyear',],
-			              ['label' => 'To', 'id' => 'field_to', 'type' => 'monthyear', ],
-			              [ 'label' => 'Description', 'id' => 'field_description', 'type' => 'textarea',]
+			              ['label' => __('Position', 'cv-generator'), 'id' => 'field_position', 'type' => 'text',],
+			              [ 'label' => __('Company', 'cv-generator'), 'id' => 'field_company', 'type' => 'text', ],
+			              ['label' => __('I am currently working here', 'cv-generator'), 'id' => 'field_still_working', 'type' => 'yesno', ],
+			              ['label' => __('From', 'cv-generator'), 'id' => 'field_from', 'type' => 'monthyear',],
+			              ['label' => __('To', 'cv-generator'), 'id' => 'field_to', 'type' => 'monthyear', 'depends_on' => [['field_still_working', '=', 0]], ],
+			              [ 'label' => __('Description', 'cv-generator'), 'id' => 'field_description', 'type' => 'textarea',]
 		              ]
 	              ]
               ]
@@ -108,17 +119,18 @@ class CVPostType {
                 'id' => 'section_education',
 //				'path' => 'education',
 				'save_button' => true,
-				'icon' => 'pi-server',
+				'icon' => '<svg xmlns="http://www.w3.org/2000/svg" height="26" viewBox="0 96 960 960" width="26"><path d="M479 936 189 777V537L40 456l439-240 441 240v317h-60V491l-91 46v240L479 936Zm0-308 315-172-315-169-313 169 313 172Zm0 240 230-127V573L479 696 249 571v170l230 127Zm1-240Zm-1 74Zm0 0Z"/></svg>',
 				'fields' => [
 					[
-						'label' => 'Education',
+						'label' => __('Education', 'cv-generator'),
 						'id' => 'field_education',
 						'type' => 'json',
 						'extra_type' => 'education',
 						'inner_fields' => [
-							[ 'label' => 'School', 'id' => 'field_school', 'type' => 'text', ],
-							['label' => 'From', 'id' => 'field_from', 'type' => 'monthyear',],
-							['label' => 'To', 'id' => 'field_to', 'type' => 'monthyear', ],
+							[ 'label' => __('School', 'cv-generator'), 'id' => 'field_school', 'type' => 'text', ],
+							['label' => __('I am currently learning here', 'cv-generator'), 'id' => 'field_still_learning', 'type' => 'yesno', ],
+							['label' => __('From', 'cv-generator'), 'id' => 'field_from', 'type' => 'monthyear',],
+							['label' => __('To', 'cv-generator'), 'id' => 'field_to', 'type' => 'monthyear', 'depends_on' => [['field_still_learning', '=', 0]], ],
 						]
 					]
 				]
@@ -129,79 +141,99 @@ class CVPostType {
 				'label' => __('Video', 'cv-generator'),
 				'id' => 'section_video',
 //				'path' => 'video',
-                'save_button' => false,
-				'icon' => 'pi-video',
+                'save_button' => true,
+				'icon' => '<svg xmlns="http://www.w3.org/2000/svg" height="26" viewBox="0 96 960 960" width="26"><path d="M140 896q-24 0-42-18t-18-42V316q0-24 18-42t42-18h520q24 0 42 18t18 42v215l160-160v410L720 621v215q0 24-18 42t-42 18H140Zm0-60h520V316H140v520Zm0 0V316v520Z"/></svg>',
                 'fields' => [
-                        [
-                            'label' => 'Video',
-                            'id' => 'field_video',
-                            'type' => 'video',
-                            'extra_type' => 'video',
-                        ]
+                    [
+                        'label' => __('Video', 'cv-generator'),
+                        'id' => 'field_video',
+                        'type' => 'video',
+                        'extra_type' => 'video',
+                    ]
                 ]
             ]
 		);
 
-        $this->api = [
-          'update_cv' => ['cv_generator/cvpost', '/update'],
-          'download_cv' => ['cv_generator/cvpost', '/download'],
-          'upload_video' => ['cv_generator/cvpost', '/upload_video'],
-          'get_video' => ['cv_generator/cvpost', '/get_video'],
-          'remove_video' => ['cv_generator/cvpost', '/remove_video'],
-          'get_thumbnail' => ['cv_generator/cvpost', '/get_thumbnail'],
-          'set_thumbnail_by_video_second' => ['cv_generator/cvpost', '/set_thumbnail_by_video_second'],
-          'payment_redirect' => CVGEN_REST_PAYMENT_API_URL
-        ];
+        $this->api = MYAPI;
+        $this->api['payment_redirect'] = CVGEN_REST_PAYMENT_API_URL;
 
 		add_action( 'rest_api_init', function () {
+            // POST
             register_rest_route($this->api['update_cv'][0], $this->api['update_cv'][1], array(
                 'methods' => 'POST',
                 'callback' => [$this, 'api_update_post'],
+                'permission_callback' => '__return_true',
                 'current_user_id' => get_current_user_id(), // This will be pass to the rest API callback
             ) );
 
-			register_rest_route($this->api['update_cv'][0], $this->api['download_cv'][1],array(
+            // GET
+			register_rest_route($this->api['download_cv'][0], $this->api['download_cv'][1],array(
 	            'methods' => 'GET',
 	            'callback' => [$this, 'api_get_pdf_cv'],
+                'permission_callback' => '__return_true',
                 'current_user_id' => get_current_user_id(), // This will be pass to the rest API callback
             ));
 
 			register_rest_route($this->api['upload_video'][0], $this->api['upload_video'][1], array(
 				'methods'         => 'POST',
 				'callback'        => [ $this, 'api_upload_video' ],
+                'permission_callback' => '__return_true',
 				'current_user_id' => get_current_user_id(), // This will be pass to the rest API callback
 			));
 
 			register_rest_route($this->api['get_video'][0], $this->api['get_video'][1], array(
 				'methods'         => 'GET',
-				'callback'        => [ $this, 'api_get_video' ]
+				'callback'        => [ $this, 'api_get_video' ],
+                'permission_callback' => '__return_true',
 			));
 
 			register_rest_route($this->api['remove_video'][0], $this->api['remove_video'][1], array(
 				'methods'         => 'DELETE',
 				'callback'        => [ $this, 'api_remove_video' ],
+                'permission_callback' => '__return_true',
 				'current_user_id' => get_current_user_id(), // This will be pass to the rest API callback
 			));
-
-//			register_rest_route($this->api['upload_thumbnail'][0], $this->api['upload_thumbnail'][1], array(
-//				'methods'         => 'POST',
-//				'callback'        => [ $this, 'api_upload_thumbnail' ],
-//				'current_user_id' => get_current_user_id(), // This will be pass to the rest API callback
-//			));
 
 			register_rest_route($this->api['get_thumbnail'][0], $this->api['get_thumbnail'][1], array(
 				'methods'         => 'GET',
 				'callback'        => [ $this, 'api_get_thumbnail' ],
+                'permission_callback' => '__return_true',
 				'current_user_id' => get_current_user_id(), // This will be pass to the rest API callback
 			));
 
 			register_rest_route($this->api['set_thumbnail_by_video_second'][0], $this->api['set_thumbnail_by_video_second'][1], array(
 				'methods'         => 'POST',
 				'callback'        => [ $this, 'api_set_thumbnail_by_video_second' ],
+                'permission_callback' => '__return_true',
+				'current_user_id' => get_current_user_id(), // This will be pass to the rest API callback
+			));
+
+			register_rest_route($this->api['generate_cv_preview'][0], $this->api['generate_cv_preview'][1], array(
+				'methods'         => 'GET',
+				'callback'        => [ new PDFCV(), 'generatePreview' ],
+                'permission_callback' => '__return_true',
+				'current_user_id' => get_current_user_id(), // This will be pass to the rest API callback
+			));
+
+			register_rest_route($this->api['get_cv_preview'][0], $this->api['get_cv_preview'][1], array(
+				'methods'         => 'GET',
+				'callback'        => [ new PDFCV(), 'getPreviewImg' ],
+                'permission_callback' => '__return_true',
+                'current_user_id' => get_current_user_id(), // This will be pass to the rest API callback
+			));
+
+			register_rest_route($this->api['check_auth'][0], $this->api['check_auth'][1], array(
+				'methods'         => 'GET',
+				'callback'        => [$this, 'checkAuth'],
+                'permission_callback' => '__return_true',
 				'current_user_id' => get_current_user_id(), // This will be pass to the rest API callback
 			));
 
         });
+    }
+
+    function checkAuth($data) {
+	    return intval( $data->get_attributes()['current_user_id'] ) > 0; // !! this comes from php not j
     }
 
     function wpse_custom_meta_box() {
@@ -217,8 +249,15 @@ class CVPostType {
 
 	// Output the HTML for the metabox
 	function cv_meta_box_callback( $post ) {
-        echo $this->cv_frontend_fields_shortcode_html(null, $post->post_author);
-	}
+		if ($userID = $post->post_author) {
+			if (!current_user_can('manage_options')) {
+				die("You are not authorized!");
+			}
+
+			$url = get_rest_url() . $this->api['download_cv'][0] . $this->api['download_cv'][1] . "?admin=true&target_user_id=$userID";
+			echo "<a href='$url' target='_blank'>Download User's CV</a>";
+		}
+    }
 
     // Add custom column to admin dashboard table
 	function my_custom_post_type_columns( $columns ) {
@@ -226,20 +265,19 @@ class CVPostType {
 		foreach ( $columns as $key => $value ) {
 			$new_columns[$key] = $value;
 			if ( $key == 'title' ) {
-				$new_columns['cv_paid_minutes_left'] = 'Paid Minutes Left';
+				$new_columns['cv_paid_minutes_left'] = 'Paid Hours Left';
 				$new_columns['cv_author_email'] = 'Author\'s email';
 			}
 		}
 		return $new_columns;
 	}
 
-
 	// Output content for custom column
 	function my_custom_post_type_column_content( $column_name, $post_id ) {
         $authorID = get_post($post_id)->post_author;
         $author = get_user_by('id', $authorID);
 		if ( $column_name == 'cv_paid_minutes_left' ) {
-			$value = intval(CVStripePayment::getCurrentUserHowManyLeftMinutes($authorID));
+			$value = round(intval(CVStripePayment::getCurrentUserHowManyLeftMinutes($authorID)) / 60, 2);
 			echo esc_html( $value );
 		} else if ($column_name == 'cv_author_email') {
             echo esc_html( $author->user_email );
@@ -254,20 +292,16 @@ class CVPostType {
 	    $unique_media_id  = get_user_meta( $current_user_id, 'cv_generator_media_folder_id', true );
 	    $path = CVGEN_PLUGIN_DIR . '/uploads/video/' . $unique_media_id . '/' . $this->thumbnail_filename;
 
-	    if ( ! file_exists( $path ) ) {
-		    return false;
-	    }
-
 	    if (!file_exists($path)) {
-		    // Return a 404 error if the file does not exist
 		    http_response_code(404);
 		    die('Not Found');
 	    }
+
 	    $mime_type = mime_content_type($path);
 	    header('Content-Type: ' . $mime_type);
 	    header('Content-Length: ' . filesize($path));
 	    readfile($path);
-	    exit;
+	    exit();
     }
 
     public function api_set_thumbnail_by_video_second($data) {
@@ -291,23 +325,23 @@ class CVPostType {
             // check if post variable with time exists and validate it is a float, then round it to 2 decimal places.
             $time = $data->get_json_params()['time'] ?? 0;
             if ( empty($time) || !is_numeric( $time ) || $time < 0) {
-	            return ['status' => "fail", 'msg' => __('Some error happened during saving thumbnail! Time not set.', 'cv_generator')];
+	            return ['status' => "fail", 'msg' => __('Some error happened during saving thumbnail! Time not set.', 'cv-generator')];
             }
 
-            $this->create_thumbnail($time, $path);
+            $this->create_thumbnail($time, $path, $current_user_id);
 
         } catch ( \Exception $e ) {
-	        return ['status' => "fail", 'msg' => __('Some error happened during saving thumbnail!', 'cv_generator')];
+	        return ['status' => "fail", 'msg' => __('Some error happened during saving thumbnail!', 'cv-generator')];
         }
 
-	    return ['status' => "ok", 'msg' => __('Thumbnail saved!', 'cv_generator')];
+	    return ['status' => "ok", 'msg' => __('Thumbnail saved!', 'cv-generator')];
     }
 
-    public function create_thumbnail($time, $video_path) {
+    public function create_thumbnail($time, $video_path, $current_user_id) {
 	    $time = round($time, 2);
 
 	    // i want that ffmpeg extract image of the second $n and save it in the same folder with image name thumbnail.jpeg or png. I would like to use OOP approach
-	    $ffmpeg = FFMpeg\FFMpeg::create();
+	    $ffmpeg = FFMpeg::create();
 	    $video  = $ffmpeg->open( $video_path );
 
 	    // Set the time code to extract the thumbnail from
@@ -315,19 +349,37 @@ class CVPostType {
 
 	    // Extract the thumbnail
 	    $frame         = $video->frame( $timecode );
+
 	    $thumbnailPath = dirname( $video_path ) . '/' . $this->thumbnail_filename; // Change the extension to png if you prefer
-	    $frame->save( $thumbnailPath );
+
+	    $frame->save($thumbnailPath);
+
+	    // Load the saved thumbnail using Intervention Image
+	    $thumbnail = Image::make($thumbnailPath);
+
+	    $watermark = Image::make(CVGEN_ASSETS_DIR . '/video.png');
+	    $watermark->opacity(75); // Set the opacity to 30%
+	    $watermark->resize(200, 200); // Set the opacity to 30%
+
+	    // Calculate the position to center the watermark
+	    $watermarkX = ($thumbnail->width() - $watermark->width()) / 2;
+	    $watermarkY = ($thumbnail->height() - $watermark->height()) / 2;
+
+	    // Apply the watermark
+	    $thumbnail->insert($watermark, 'top-left', $watermarkX, $watermarkY);
+
+	    $thumbnail->save( $thumbnailPath );
+	    (new PDFCV())->generatePreview(null, $current_user_id);
     }
 
     public function api_remove_video($data) {
 	    $current_user_id = intval($data->get_attributes()['current_user_id']);
 	    if (!$current_user_id) {
-		    return ['status' => "fail", 'msg' => __('You should be logged in!', 'cv_generator')];
+		    return ['status' => "fail", 'msg' => __('You should be logged in!', 'cv-generator')];
 	    }
 
-	    $baseDir = CVGEN_PLUGIN_DIR . "/uploads/video/";
-        $this->removePreviousVideoFolderIfExists($baseDir, $current_user_id);
-	    return ['status' => "ok", 'msg' => __('Video removed successfully!!', 'cv_generator')];
+        $this->move_previous_video_if_exists($current_user_id);
+	    return ['status' => "ok", 'msg' => __('Video removed successfully!', 'cv-generator')];
     }
 
 	public function api_get_video($data) {
@@ -336,39 +388,24 @@ class CVPostType {
 	        wp_die("Video not found - q parameter not defined or invalid.");
         }
 
-		$args = array(
-			'number' => 1,
-			'meta_query' => array(
-				array(
-					'key' => 'cv_generator_video_url_param',
-					'value' => $video_uuid,
-					'compare' => '='
-				)
-			)
-		);
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'cv_generator_public_url_video';
 
-		$users = get_users($args);
+        $query = $wpdb->prepare(
+            "SELECT * FROM $table_name WHERE public_url_query = %s",
+            $video_uuid
+        );
 
-		if (count($users) !== 1) {
+        $public_urls = $wpdb->get_results($query);
+
+        if (count($public_urls) !== 1) {
             wp_die("Video not found - q parameter not defined or invalid.");
-		}
+        }
 
-        $user = $users[0];
-
-        $userId = intval($user->ID);
-		if (!$userId) {
-			wp_die('You should be logged in!');
-		}
-		$uniq_video_id = get_user_meta($userId, 'cv_generator_media_folder_id', true);
-		$video_filename = get_user_meta($userId, 'cv_generator_video_filename', true);
-		if (!$uniq_video_id) {
-			return null;
-		}
-
-		$path = CVGEN_PLUGIN_DIR . '/uploads/video/' . $uniq_video_id . '/' . $video_filename;
+		$path = CVGEN_UPLOAD_DIR . '/' . $public_urls[0]->path;
 
 		if (!file_exists($path)) {
-			return false;
+            die("Video not found.");
 		}
 
 		$filesize = filesize($path);
@@ -400,9 +437,6 @@ class CVPostType {
 		header('Content-Length: ' . $length);
 		header('Accept-Ranges: bytes');
 
-		header('Cache-Control: no-cache, no-store, must-revalidate');
-		header('Pragma: no-cache');
-		header('Expires: 0');
 		if (isset($_SERVER['HTTP_RANGE'])) {
 			header('HTTP/1.1 206 Partial Content');
 			header("Content-Range: bytes $offset-" . ($offset + $length - 1) . "/$filesize");
@@ -425,60 +459,54 @@ class CVPostType {
         exit();
 	}
 
-    private function removePreviousVideoFolderIfExists($baseDir, $current_user_id) {
-	    // Get the current cv_generator_media_folder_id for the user
+    private function move_previous_video_if_exists($current_user_id) {
 	    $user_id = intval($current_user_id);
-	    $old_uniq_id = get_user_meta($user_id, 'cv_generator_media_folder_id', true);
-	    delete_user_meta( $user_id, 'cv_generator_media_folder_id');
+	    $uniq_media_folder_id = get_user_meta( $user_id, 'cv_generator_media_folder_id', true);
+	    $video_filename = get_user_meta( $user_id, 'cv_generator_video_filename', true);
 	    delete_user_meta( $user_id, 'cv_generator_video_filename');
+        $path = CVGEN_UPLOAD_DIR . "/video/$uniq_media_folder_id/$video_filename";
 
-	    if ($old_uniq_id) {
-		    // If the user already has a video, delete it before uploading the new video
-		    $oldDir = $baseDir . $old_uniq_id . "/";
-		    if (file_exists($oldDir)) {
-			    $files = array_diff(scandir($oldDir), array('.', '..'));
-			    foreach ($files as $file) {
-				    unlink($oldDir . $file);
-			    }
-			    rmdir($oldDir);
-		    }
-	    }
+        $archive_dir = CVGEN_UPLOAD_DIR . '/video/0archive/' . $uniq_media_folder_id;
+
+        if (!is_dir($archive_dir)) {
+            mkdir($archive_dir, 0777, true);
+        }
+
+        if (file_exists($path)) {
+            $file_extension = pathinfo($video_filename, PATHINFO_EXTENSION);
+            $filename_without_ext = pathinfo($video_filename, PATHINFO_FILENAME);
+            $destination_path = $archive_dir . '/' . $video_filename;
+            $counter = 1;
+
+            while (file_exists($destination_path)) {
+                $destination_path = $filename_without_ext . '_' . $counter . '.' . $file_extension;
+                $destination_path = $archive_dir . '/' . $destination_path;
+                $counter++;
+            }
+
+            rename($path, $destination_path);
+        }
     }
 
 	public function api_upload_video($data) {
-		$current_user_id = intval($data->get_attributes()['current_user_id']); // !! this comes from php not js
+        $current_user_id = intval($data->get_attributes()['current_user_id']); // !! this comes from php not js
         if (!$current_user_id) {
             wp_die('You should be logged in!');
         }
 
 		// Set the directory where uploaded files will be saved
-		$baseDir = CVGEN_PLUGIN_DIR . "/uploads/video/";
+		$baseDir = CVGEN_UPLOAD_DIR . "/video/";
+
 
 		$allowedExtensions = array('mp4', 'webm');
-//		$allowedExtensions = array('mp4', 'avi', 'mov', 'wmv');
 
-		do {
-			$uniq_id = uniqid();
-			$uploadDir = $baseDir . $uniq_id . "/";
-		} while (file_exists($uploadDir));
-
-        // generate meta value (unique video url query) for user if the user does not have already
-		$existing_meta_value = get_user_meta($current_user_id, 'cv_generator_video_url_param', true);
-
-		if (empty($existing_meta_value)) {
-			$unique = false;
-			while (!$unique) {
-				$random_string = bin2hex(random_bytes(32));
-				$existing_user = get_users(array(
-					'meta_key' => 'cv_generator_video_url_param',
-					'meta_value' => $random_string
-				));
-				if (empty($existing_user)) {
-					$unique = true;
-					add_user_meta($current_user_id, 'cv_generator_video_url_param', $random_string);
-				}
-			}
-		}
+        $media_uniq_id = get_user_meta($current_user_id, 'cv_generator_media_folder_id', true);
+		$uploadDir = $baseDir . $media_uniq_id . "/";
+		if (!$media_uniq_id) {
+			cv_generator_set_unique_media_id($baseDir, $current_user_id);
+			$media_uniq_id = get_user_meta($current_user_id, 'cv_generator_media_folder_id', true);
+			$uploadDir = $baseDir . $media_uniq_id . "/";
+        }
 
         // Check if a file was uploaded
         if (isset($_FILES['video']) && $_FILES['video']['error'] === UPLOAD_ERR_OK) {
@@ -487,20 +515,47 @@ class CVPostType {
 
             // Check if the file extension is allowed
             if (!in_array($fileExtension, $allowedExtensions)) {
-                return ['status' => "fail", 'msg' => __('Invalid file type. Only MP4, AVI, MOV, and WMV files are allowed.', 'cv_generator')];
+                return ['status' => "fail", 'msg' => __('Invalid file type. Only MP4 and webm files are allowed.', 'cv-generator')];
             }
 
-            // verify that the file starts with 'video/' as these files should
+            // verify that the file starts with 'video/'
             $finfo = finfo_open(FILEINFO_MIME_TYPE);
             $fileType = finfo_file($finfo, $_FILES['video']['tmp_name']);
             if (strpos($fileType, 'video/') !== 0) {
-                return ['status' => "fail", 'msg' => __('Invalid file type. Only video files are allowed.', 'cv_generator')];
+                return ['status' => "fail", 'msg' => __('Invalid file type. Only video files are allowed.', 'cv-generator')];
             }
+
+
+	        $ffmpeg          = FFMpeg::create();
+	        $video           = $ffmpeg->open( $_FILES['video']['tmp_name']);
+            $created_temp_file = false;
+            if (!$duration = $video->getFormat()->get('duration')) {
+	            // Check if the video length is within the allowed limit
+	            try {
+		            $video_path_temp = $uploadDir . 'temporary-video.webm';
+		            $video->save( new WebM(), $video_path_temp );
+		            $video    = $ffmpeg->open( $video_path_temp );
+		            $duration = $video->getFormat()->get( 'duration' );
+		            $created_temp_file = true;
+	            } catch ( Exception $e ) {
+		            if ( WP_DEBUG ) {
+			            echo $e->getMessage() . "\n";
+		            }
+		            die( 'Error encoding the video!' );
+	            }
+            }
+
+	        if ( $duration > 120 ) {
+		        return [
+			        'status' => "fail",
+			        'msg'    => __( 'Video length exceeds the allowed limit of 120 seconds.', 'cv-generator' )
+		        ];
+	        }
 
             // Generate a unique filename for the uploaded file
             $filename = $_FILES['video']['name'];
             if (strlen($filename) > 255) {
-                return ['status' => "fail", 'msg' => __('Video file name is too long!', 'cv_generator')];
+                return ['status' => "fail", 'msg' => __('Video file name is too long!', 'cv-generator')];
             }
 
             // Create the target directory if it doesn't already exist
@@ -510,31 +565,75 @@ class CVPostType {
 
             // Move the uploaded file to the designated directory on your server
             $video_path = $uploadDir . $filename;
-            if (move_uploaded_file($_FILES['video']['tmp_name'], $video_path)) {
-                // Return a success response
-                $this->removePreviousVideoFolderIfExists($baseDir, $current_user_id);
 
-                update_user_meta($current_user_id, 'cv_generator_media_folder_id', $uniq_id);
-                update_user_meta($current_user_id, 'cv_generator_video_filename', $filename);
-                $this->create_thumbnail(1, $video_path);
-                return [ 'status' => "ok", 'msg' => __( 'Success uploading video.', 'cv_generator' ) ];
+            die($video_path);
+
+	        // Return a success response
+	        $this->move_previous_video_if_exists($current_user_id);
+
+	        if ( $created_temp_file ) {
+		        if (!rename($video_path_temp, $video_path)) {
+			        if (WP_DEBUG) {
+				        echo "Created temp file: " . ($created_temp_file ? 'true' : 'false') . " \n";
+				        echo "Temporary Filename: $video_path_temp (used in case if created_temp_file) \n";
+				        echo "Video Filename: $video_path (video saved name) \n";
+			        }
+
+			        return ['status' => "fail", 'msg' => __('Error uploading video 10000400', 'cv-generator')];
+		        }
             } else {
-                return ['status' => "fail", 'msg' => __('Error uploading video 10000200', 'cv_generator')];
-            }
+                if (!move_uploaded_file($_FILES['video']['tmp_name'], $video_path)) {
+	                if (WP_DEBUG) {
+		                echo "Created temp file: " . ($created_temp_file ? 'true' : 'false') . " \n";
+		                echo "Filename: $filename (used in case if not created_temp_file) \n";
+		                echo "Video Filename: $video_path (video saved name) \n";
+	                }
+
+	                return ['status' => "fail", 'msg' => __('Error uploading video 10000500', 'cv-generator')];
+                }
+	        }
+            
+            $this->update_video_public_url('myPath');
+
+	        update_user_meta($current_user_id, 'cv_generator_video_filename', $filename);
+
+	        $this->create_thumbnail(1, $video_path, $current_user_id);
+	        return [
+                'status' => "ok",
+                'msg' => __('Success uploading video.', 'cv_generator')
+            ];
         } else {
             // Return an error response
-            return ['status' => "fail", 'msg' => __('Error uploading video 10000300', 'cv_generator')];
+            return ['status' => "fail", 'msg' => __('Error uploading video 10000300', 'cv-generator')];
         }
-	}
+    }
 
 	function api_get_pdf_cv($data) {
 	    $current_user_id = $data->get_attributes()['current_user_id']; // !! this comes from php not js
+		$params = $data->get_params();
+		$admin = $params['admin'] ?? null;
+        $target_user_id = $current_user_id;
+        $admin_request = false;
 
-        if (!CVStripePayment::getCurrentUserHowManyLeftMinutes($current_user_id)) {
-	        return ['status' => "fail", 'msg' => __('You have not paid for the CV.', 'cv_generator')];
+        if ($admin === 'true') { // check that in query is set admin
+            if (user_can($current_user_id,  'manage_options' )) { // check that role is admin (by checking if user can manage options)
+	            $requested_user = intval( $params['target_user_id'] ?? null );
+                if ($requested_user) {
+                  $target_user_id = $requested_user;
+                  $admin_request = true;
+                } else {
+                    die("Target User ID not defined. Use target_user_id=6, for exmample.");
+                }
+            } else {
+                die("You are not authorized to do this!");
+            }
         }
 
-        (new PDFCV())->show($current_user_id);
+		if (!CVStripePayment::getCurrentUserHowManyLeftMinutes($target_user_id) && !$admin_request) {
+	        return ['status' => "fail", 'msg' => __('You have not paid for the CV.', 'cv-generator')];
+        }
+
+        (new PDFCV())->show($target_user_id);
     }
 
     function api_update_post($data) {
@@ -542,7 +641,7 @@ class CVPostType {
 
 	    // Validate nonce
 	    if (!isset($data[$this->nonce_name]) && !wp_verify_nonce($data[$this->nonce_name], $this->nonce_name)) {
-		    return ['status' => "fail", 'msg' => __('Invalid nonce', 'cv_generator')];
+		    return ['status' => "fail", 'msg' => __('Invalid nonce', 'cv-generator')];
 	    }
 
         $cv = cv_generator_get_current_users_cv($current_user_id);
@@ -567,13 +666,7 @@ class CVPostType {
             }
         }
 
-//        foreach ($sections as $section) {
-//	        foreach ( $section['fields'] as $field ) {
-//		        if (update_post_meta( $cv->ID, $field['id'], $data[ $field['id'] ] ) ) { // do update
-//			        $result[] = $field['id'];
-//		        }
-//	        }
-//        }
+	    (new PDFCV())->generatePreview(null, $current_user_id);
 
 	    return ['status' => "ok", 'msg' => "CV Updated", "updated_fields" => $result];
     }
@@ -597,9 +690,7 @@ class CVPostType {
 	function data_to_javascript($cv) {
 		$currentYear = date('Y');
 
-        $api = [
-//	        'update_cv' =>  get_rest_url() . $this->api['update_cv'][0] . $this->api['update_cv'][1],
-        ];
+        $api = [];
 
         foreach ($this->api as $key => $value) {
             $api[$key] = get_rest_url() . $value[0]. $value[1];
@@ -616,21 +707,23 @@ class CVPostType {
                 'nonce' => wp_create_nonce($this->nonce_name),
                 'nonce_name' => $this->nonce_name,
                 'meta' => get_post_meta($cv->ID),
-                'months' => [__('January', 'cv_generator'),__('February', 'cv_generator'),__('March', 'cv_generator'),__('April', 'cv_generator'),__('May', 'cv_generator'),__('June', 'cv_generator'),__('July', 'cv_generator'),__('August', 'cv_generator'),__('September', 'cv_generator'),__('October', 'cv_generator'),__('November', 'cv_generator'),__('December', 'cv_generator')],
+                'months' => [__('January', 'cv-generator'),__('February', 'cv-generator'),__('March', 'cv-generator'),__('April', 'cv-generator'),__('May', 'cv-generator'),__('June', 'cv-generator'),__('July', 'cv-generator'),__('August', 'cv-generator'),__('September', 'cv-generator'),__('October', 'cv-generator'),__('November', 'cv-generator'),__('December', 'cv-generator')],
                 'years' => array_reverse(range(1950, $currentYear)),
                 'translations' => [
                     'submit' => __('Save', 'cv-generator'),
-                    'submit_and_continue' => __('Save and continue', 'cv-generator'),
+                    'submit_and_continue' => __('Continue', 'cv-generator'),
+                    'finish_cv' => __('Finish CV', 'cv-generator'),
                     'addRow' => __('Add', 'cv-generator'),
                     'removeRow' => __('Remove', 'cv-generator'),
                     'removeVideo' => __('Delete video', 'cv-generator'),
-                    'uploadVideo' => __('Upload video', 'cv-generator'),
+                    'uploadVideo' => __('Upload video (MP4)', 'cv-generator'),
                     'recordVideo' => __('Record new video', 'cv-generator'),
                     'noVideo' => __('You do not have video uploaded or recorder', 'cv-generator'),
                     'viewVideo' => __('Back', 'cv-generator'),
                     'startRecording' => __('Start recording', 'cv-generator'),
                     'stopRecording' => __('Stop recording', 'cv-generator'),
                     'thumbnail' => __('Video thumbnail', 'cv-generator'),
+                    'thumbnailDescription' => __('This video thumbnail will be shown in your CV. You can change it to any frame of the video by setting the video player to the frame you want, and pressing the button to set thumbnail.', 'cv-generator'),
                     'setThumbnailByVideoSeconds' => __('Set thumbnail on this video second', 'cv-generator'),
                     "cvPreview" => __('CV preview', 'cv-generator'),
                     'accessStatus' => __('Access status', 'cv-generator'),
@@ -644,26 +737,14 @@ class CVPostType {
                 'api' => $api,
                 // be cautious when changing order of these because they are used in such order in Vue
                 'navigation_tabs' => [
-                        ['name' => __('Home', 'cv-generator'), 'path' => '/', 'icon' => 'pi-home'],
+                        ['name' => __('My CV', 'cv-generator'), 'path' => '/', 'icon' => 'pi-home'],
                         ['name' => __('Edit CV', 'cv-generator'), 'path' => '/edit-cv', 'icon' => 'pi-user-edit'],
-                        ['name' => __('Download CV', 'cv-generator'), 'path' => '/download-cv', 'icon' => 'pi-file-pdf']
                 ]
             ]
 		];
 	}
 
 	function cv_frontend_fields_shortcode_html( $atts, $userID = null ) {
-        if ($userID) {
-            echo 'User #' . $userID . ' CV';
-            echo "Note that you cannot edit this CV if it is not your own.";
-
-	        // Save the current user ID for later
-	        $previous_current_user_id = get_current_user_id();
-
-            // Set the current user ID to the ID of the user you want to impersonate
-	        wp_set_current_user( $userID );
-        }
-
 		$cv = cv_generator_get_current_users_cv();
 
 		if (is_user_logged_in()) {
@@ -691,12 +772,10 @@ class CVPostType {
 
 			<?php
 
-			if ($userID && $previous_current_user_id) {
-				wp_set_current_user( $previous_current_user_id );
-			}
-
 			return ob_get_clean();
 		}
+
+        return "";
 	}
 
 	/**
@@ -706,8 +785,8 @@ class CVPostType {
 	 */
 	public function cv_post_type() {
 		$labels = array(
-			'name'                  => _x( 'Curriculum Vitaes', 'Post Type General Name', 'cv_generator' ),
-			'singular_name'         => _x( 'Curriculum Vitae', 'Post Type Singular Name', 'cv_generator' ),
+			'name'                  => __( 'Curriculum Vitaes', 'Post Type General Name', 'cv_generator' ),
+			'singular_name'         => __( 'Curriculum Vitae', 'Post Type Singular Name', 'cv_generator' ),
 			'menu_name'             => __( 'Curriculum Vitae', 'cv_generator' ),
 			'name_admin_bar'        => __( 'Curriculum Vitae', 'cv_generator' ),
 			'archives'              => __( 'Curriculum Vitae Archives', 'cv_generator' ),
@@ -752,4 +831,84 @@ class CVPostType {
 		);
 		register_post_type( 'cv', $args );
 	}
+
+    static function get_public_video_url($userId) {
+        return get_rest_url() . MYAPI['get_video'][0] . MYAPI['get_video'][1] . '?q=' . get_user_meta($userId, 'cv_generator_video_url_param_id', true);
+    }
+
+    /**
+     * This function creates a unique query (32 symbols)
+     * and inserts into database which is later used
+     * to retrieve the video.
+     *
+     * @param $path
+     * @return void
+     * @throws Exception
+     */
+    function update_video_public_url($path) {
+        $unique_public_video_hash = false;
+        while (!$unique_public_video_hash) {
+            $public_url_query = bin2hex(random_bytes(32));
+            if (!$this->already_exists_this_public_url($public_url_query)) {
+                $unique_public_video_hash = true;
+                $this->insert_public_video_url($public_url_query, $path);
+            }
+        }
+    }
+
+    function insert_public_video_url($public_url_query, $video_path_from_uploads_folder) {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'cv_generator_public_url_video';
+
+        $data = array(
+            'public_url_query' => $public_url_query,
+            'path' => $video_path_from_uploads_folder
+        );
+
+        return $wpdb->insert($table_name, $data);
+    }
+
+    function already_exists_this_public_url($public_url) {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'cv_generator_public_url_video';
+
+        $query = $wpdb->prepare(
+            "SELECT * FROM $table_name WHERE public_url_query = %s",
+            $public_url
+        );
+
+        $results = $wpdb->get_results($query);
+
+        return count($results) > 0;
+    }
+
+    /**
+     * Setup plugin
+     *
+     * @return void
+     */
+    static function onActivate($abspath, $plugin_name) {
+        global $wpdb;
+        require_once($abspath . 'wp-admin/includes/upgrade.php');
+        $table_name = $wpdb->prefix . 'cv_generator_public_url_video';
+
+        // create public url to video table.
+        // user_id - used for existing users
+        dbDelta("CREATE TABLE $table_name (
+            id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+            public_url_query varchar(64) NOT NULL,
+            path varchar(255) NOT NULL,
+            PRIMARY KEY (id)            
+        )");
+
+        // validate that tables were created
+        // if not present in db, then deactivate plugin and die with error
+        $created_table_name = $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $table_name ) );
+
+        if ($wpdb->get_var($created_table_name) !== $table_name) {
+            deactivate_plugins($plugin_name);
+            $referer_url = wp_get_referer();
+            wp_die("There was error setting up the plugin. Plugin deactivated. <br /><a href='$referer_url'>Back</a>");
+        }
+    }
 }

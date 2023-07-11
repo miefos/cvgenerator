@@ -101,7 +101,12 @@ export default {
           .then(response => {
             this.form.response = response.data
             if (response.data.status === 'ok') {
-              location.reload()
+              const currentUrl = window.location.href;
+              window.location.replace(currentUrl + 'edit-cv');
+              location.reload();
+
+              // location.href = currentUrl + '/edit-cv';
+              // location.reload()
             }
           })
           .catch(error => {

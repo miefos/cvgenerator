@@ -1,5 +1,4 @@
 <?php
-
 require_once "CVLanguages.php";
 
 class CVSettings {

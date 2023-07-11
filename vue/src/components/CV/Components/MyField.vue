@@ -24,11 +24,13 @@
     <div v-if="errors.hasOwnProperty(field.id)" class="text-red-600">{{ errors[field.id] }}</div>
   </div>
   <!-- Date  -->
-  <div v-else-if="getFieldOrInnerFieldType === 'monthyear'">
-    {{ getFieldOrInnerFieldLabel }}<span v-if="field.validation?.includes('required')" class="text-red-600">*</span>
-    <Calendar view="month" dateFormat="mm/yy" v-model="monthyear" @date-select="updateFieldValue"/>
-    <div v-if="errors.hasOwnProperty(field.id)" class="text-red-600">{{ errors[field.id] }}</div>
-  </div>
+  <template v-else-if="getFieldOrInnerFieldType === 'monthyear'">
+    <div v-show="shouldShowFieldDueDependance">
+      {{ getFieldOrInnerFieldLabel }}<span v-if="field.validation?.includes('required')" class="text-red-600">*</span>
+      <Calendar view="month" dateFormat="mm/yy" v-model="monthyear" @date-select="updateFieldValue"/>
+      <div v-if="errors.hasOwnProperty(field.id)" class="text-red-600">{{ errors[field.id] }}</div>
+    </div>
+  </template>
   <!-- Yes No field  -->
   <div v-else-if="getFieldOrInnerFieldType === 'yesno'">
     {{ getFieldOrInnerFieldLabel }}<span v-if="field.validation?.includes('required')" class="text-red-600">*</span>
@@ -50,7 +52,7 @@
   <div v-else-if="getFieldOrInnerFieldType === 'json'">
     <Languages v-if="field.extra_type === 'languages'" :field="{...field}" :section="section" :data="{...data}" />
     <WorkExperience v-else-if="field.extra_type === 'work_experience'" :field="{...field}" :section="section" :data="{...data}" />
-    <WorkExperience v-else-if="field.extra_type === 'education'" :field="{...field}" :section="section" :data="{...data}" />
+    <Education v-else-if="field.extra_type === 'education'" :field="{...field}" :section="section" :data="{...data}" />
   </div>
   <!-- Default  -->
   <div v-else>
@@ -59,7 +61,7 @@
 </template>
 <script>
 import dayjs from 'dayjs'
-import { mapState } from 'vuex'
+import {mapState} from 'vuex'
 
 export default {
   name: "MyField",
@@ -84,12 +86,47 @@ export default {
         return this.formData[this.section.id][this.field.id];
       }
     },
+    getFieldOrInnerField() {
+      return this.innerField? this.innerField : this.field;
+    },
     getFieldOrInnerFieldType() {
       return this.innerField? this.innerField.type : this.field.type;
     },
     getFieldOrInnerFieldLabel() {
       return this.innerField? this.innerField.label : this.field.label;
-    }
+    },
+    shouldShowFieldDueDependance() {
+      const depends_on = this.getFieldOrInnerField['depends_on']
+      if (!depends_on) return true
+      let result
+      depends_on.forEach(depend_on => {
+        const field = depend_on[0]
+        const operator = depend_on[1]
+        const value = depend_on[2]
+        const formDataSectionProxy = this.formData[this.section.id][this.field.id]
+        let fieldValue
+        if (this.innerFieldRowId !== null) {
+          fieldValue = formDataSectionProxy[this.innerFieldRowId]?.[field]
+        } else {
+          fieldValue = formDataSectionProxy[field]
+        }
+        switch (operator) {
+          case '=': {
+            result = fieldValue === value || null == fieldValue
+            break;
+          }
+          default: {
+            result = true
+            break;
+          }
+        }
+        if (result !== null) {
+          return false
+        }
+      })
+
+      return result
+    },
   },
   methods: {
     updateFieldValue(newValue) {
@@ -123,4 +160,5 @@ import Languages from "@/components/CV/CustomFields/Languages.vue";
 import WorkExperience from "@/components/CV/CustomFields/WorkExperience.vue";
 import InputSwitch from 'primevue/inputswitch';
 import Video from "@/components/CV/CustomFields/Video.vue";
+import Education from "@/components/CV/CustomFields/Education.vue";
 </script>

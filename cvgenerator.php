@@ -44,18 +44,43 @@ function cv_generator_mysql_time( $unix_timestamp ) {
 
 class cv_generator {
 	public function __construct() {
-		add_action( 'plugins_loaded', function () {
+        add_action('activate_' . CVGEN_PLUGIN_NAME, [$this, 'onActivate']);
+        add_action( 'plugins_loaded', function () {
 			$this->settings = new CVSettings();
+            $this->settings->languages->change_language_if_post_requested();
+            $this->settings->languages->cv_generator_load_textdomain();
+            
 			$this->cv_stripe_payment = new CVStripePayment($this->settings);
 
 			$this->cv_generator_auth = new CVGeneratorAuthentication($this->settings);
 			$this->cv_post_type = new CVPostType($this->settings);
-
-            $this->settings->languages->change_language_if_post_requested();
-            $this->settings->languages->cv_generator_load_textdomain();
         });
 	}
 
+    function onActivate() {
+        CVGeneratorAuthentication::onActivate(ABSPATH, CVGEN_PLUGIN_NAME);
+        CVPostType::onActivate(ABSPATH, CVGEN_PLUGIN_NAME);
+    }
 }
 
 new cv_generator();
+/*
+	function menu_lv_shortcode() { 
+	    ob_clean();
+    	ob_start();
+    	
+		$current_language = get_user_locale();
+		global $wp_query;
+		$post_id = $wp_query->post->ID;
+		
+		//echo $post_id;'
+    	if ($current_language=='lv' && $post_id == "25066") {
+    		echo "redirec-";    		
+
+    		$url = get_permalink( "25505" );
+			wp_redirect($url, '301');
+			exit();
+		}
+	}
+	add_shortcode('LV', 'menu_lv_shortcode', 100);
+*/

@@ -1,33 +1,53 @@
 <template>
-  <VideoRecorder @recording-uploaded-successfully="setAction('videoplayer')" v-if="action === 'videorecorder'" :data="{...data}"></VideoRecorder>
-  <div v-if="action === 'videoplayer' && userHasVideo">
-    <VideoPlayer @updateVideoSecond="(sec) => currentVideoSecond = sec" :key="waitingForResponse" :url="data.api.get_video + '?t=' + Date.now() + '&q=' + data.public_video_key" :data="{...data}"></VideoPlayer>
-  </div>
-  <div v-else-if="action === 'videoplayer' && !userHasVideo">
-    <h4>{{ data.translations.noVideo }}</h4>
-  </div>
-
-  <!-- Buttons -->
-  <div v-if="action !== 'videorecorder'" class="flex flex-wrap gap-2">
-    <Button v-if="action === 'videoplayer' && userHasVideo" @click="deleteVideo" :label="data.translations.removeVideo" icon="pi pi-trash" />
-    <VideoUploader :data="{...data}"></VideoUploader>
-    <Button @click="setAction('videorecorder')" :label="data.translations.recordVideo" icon="pi pi-video" />
-    <Button @click="setThumbnailFromSecond" v-if="userHasVideo" :label="data.translations.setThumbnailByVideoSeconds" icon="pi pi-video" />
-  </div>
-  <div v-else>
-    <Button type="button" @click="setAction('videoplayer')" :label="data.translations.viewVideo" icon="pi pi-arrow-left" class="my-2" />
-  </div>
-
-  <!-- Thumbnail -->
-  <div class="my-4" v-if="action === 'videoplayer' && userHasVideo" >
-    {{ data.translations.thumbnail }}
-    <div class="flex">
-        <img width="300" :src="data.api.get_thumbnail + '?t=' + new Date()" class="rounded-circle" />
+  <div v-if="videoPublicUrlKey !== 'not-set'">
+    <VideoRecorder @recording-uploaded-successfully="setAction('videoplayer')" v-if="action === 'videorecorder'"
+                   :data="{...data}"></VideoRecorder>
+    <div v-if="action === 'videoplayer' && userHasVideo">
+      <VideoPlayer
+          @updateVideoSecond="(sec) => currentVideoSecond = sec"
+          :key="waitingForResponse"
+          :url="data.api.get_video + '?t=' + Date.now() + '&q=' + videoPublicUrlKey"
+          :data="{...data}"
+      ></VideoPlayer>
     </div>
-  </div>
-  <div v-if="action === 'videoplayer' && userHasVideo">
-    {{ data.translations.yourVideoPubliclyIsAvailableHere }} <br />
-    {{ data.api.get_video + "?q=" + data.public_video_key}}
+    <div v-else-if="action === 'videoplayer' && !userHasVideo">
+      <h4>{{ data.translations.noVideo }}</h4>
+    </div>
+
+    <!-- Buttons -->
+    <div v-if="action !== 'videorecorder'" class="flex flex-wrap gap-2">
+      <Button v-if="action === 'videoplayer' && userHasVideo" @click="deleteVideo"
+              :label="data.translations.removeVideo" icon="pi pi-trash"/>
+      <VideoUploader :data="{...data}"></VideoUploader>
+      <Button @click="setAction('videorecorder')" :label="data.translations.recordVideo" icon="pi pi-video"/>
+      <Button @click="setThumbnailFromSecond" v-if="userHasVideo" :label="data.translations.setThumbnailByVideoSeconds"
+              icon="pi pi-video"/>
+    </div>
+    <div v-else>
+      <Button type="button" @click="setAction('videoplayer')" :label="data.translations.viewVideo"
+              icon="pi pi-arrow-left" class="my-2"/>
+    </div>
+
+    <!-- Thumbnail -->
+    <div class="my-4" v-if="action === 'videoplayer' && userHasVideo">
+      <div class="font-semibold">{{ data.translations.thumbnail }}</div>
+      {{ data.translations.thumbnailDescription }}
+      <div class="flex">
+        <img
+            width="300"
+            :src="data.api.get_thumbnail + '?t=' + Date.now()"
+            class="rounded-circle"
+        />
+      </div>
+    </div>
+    <div v-if="action === 'videoplayer' && userHasVideo">
+      {{ data.translations.yourVideoPubliclyIsAvailableHere }}
+      <a
+          :href="data.api.get_video + '?t=' + Date.now() + '&q=' + videoPublicUrlKey"
+          target="_blank">
+        <Button type="button" outlined label="video"/>
+      </a>
+    </div>
   </div>
 </template>
 
@@ -47,7 +67,7 @@ export default {
     data: {type: Object, required: true}
   },
   computed: {
-    ...mapState(['userHasVideo', "waitingForResponse"]),
+    ...mapState(['userHasVideo', "waitingForResponse", "videoPublicUrlKey"]),
   },
   data() {
     return {
@@ -55,8 +75,9 @@ export default {
       currentVideoSecond: null,
     };
   },
-  async created() {
+  async beforeCreate() {
     await this.$store.dispatch("setUserHasVideo", this.data.user_has_video);
+    await this.$store.dispatch("setUserVideoKey", this.data.public_video_key);
   },
   methods: {
     deleteVideo() {
@@ -68,7 +89,10 @@ export default {
       this.action = action;
     },
     setThumbnailFromSecond() {
-      this.$store.dispatch('setThumbnailFromSeconds', {time: this.currentVideoSecond, apiUrl: this.data.api.set_thumbnail_by_video_second});
+      this.$store.dispatch('setThumbnailFromSeconds', {
+        time: this.currentVideoSecond,
+        apiUrl: this.data.api.set_thumbnail_by_video_second
+      });
     }
   }
 }

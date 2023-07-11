@@ -4,6 +4,7 @@ import {isJsonString, transformSubmitData} from "./helpers";
 
 const store = new Vuex.Store({
   state: {
+    generalData: 'gplaceholder', // this is currently not used in components
     nonce: {},
     response: null,
     waitingForResponse: false,
@@ -11,6 +12,7 @@ const store = new Vuex.Store({
     responseReceivedRecentlyTimeoutId: false,
     lastButtonPressedId: null,
     userHasVideo: false,
+    videoPublicUrlKey: 'not-set',
     errors: {},
     formData: {}, // this is the form data that will be sent to the server, oncreate it is set dynamically
   },
@@ -30,7 +32,10 @@ const store = new Vuex.Store({
     },
     setResponse(state, response) {
       state.response = response;
-    }
+    },
+    setGeneralData(state, data) {
+      state.generalData = data;
+    },
   },
   actions: {
     setLastButtonPressed({state}, lastButtonPressedId) {
@@ -147,6 +152,14 @@ const store = new Vuex.Store({
             commit('setResponse', response)
             dispatch('setUserHasVideo', true)
             resolve(response)
+
+           if (response.data?.data?.public_url_query) {
+             state.videoPublicUrlKey = response.data.data.public_url_query;
+           }
+
+            if (!state.generalData.data.public_video_key) {
+              location.reload()
+            }
           })
          .catch(error => {
            console.log("Error updating")
@@ -192,6 +205,12 @@ const store = new Vuex.Store({
           })
       })
     },
+    removeResponse({state,commit,dispatch}) {
+      commit('setResponse', null)
+    },
+    setUserVideoKey({state,commit,dispatch}, key) {
+      state.videoPublicUrlKey = key
+    }
     // resetResponseAndErrors({state,commit}) {
     //   state.response = null
     //   state.errors = {}
@@ -201,6 +220,9 @@ const store = new Vuex.Store({
     //   state.lastButtonPressedId = null
     // }
   },
+  getters: {
+    getGeneralData: state => state.generalData
+  }
 });
 
 export default store;

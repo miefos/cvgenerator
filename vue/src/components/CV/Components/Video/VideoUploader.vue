@@ -1,5 +1,5 @@
 <template>
-  <FileUpload :chooseLabel="data.translations.uploadVideo" mode="basic" accept="video/*" :customUpload="true" @uploader="uploadVideo" :auto="true"/>
+  <FileUpload :chooseLabel="data.translations.uploadVideo" mode="basic" accept="video/mp4" :customUpload="true" @uploader="uploadVideo" :auto="true"/>
 </template>
 
 <script>

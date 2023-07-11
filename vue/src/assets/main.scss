@@ -2,6 +2,19 @@
 /*@import 'primevue/resources/themes/saga-blue/theme.css'; !* theme *!*/
 /*@import 'primevue/resources/primevue.min.css'; !* core css *!*/
 
+.ast-container:has(#cv_generator) {
+  max-width: 90%;
+
+  @media only screen and (max-width: 767px) {
+    max-width: 100%;
+  }
+
+  .content-area.primary {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+}
+
 article:has(#cv_generator) {
   padding: 10px !important;
 }
@@ -10,7 +23,8 @@ article:has(#cv_generator) .entry-header {
   display: none !important;
 }
 
-#cvgenerator_language {
+#cvgenerator_language,
+#videoRecorderSelectingDeviceDropdowns select {
   background-position-y: calc( 100% - 17px ) !important;
 }
 
@@ -227,5 +241,9 @@ article:has(#cv_generator) .entry-header {
     border-style: solid;
     border-width: 0 0 1.75em 3em;
     border-color: transparent transparent var(--vjs-theme-city--secondary) transparent;
+  }
+
+  .vjs-control-bar {
+    display: flex !important;
   }
 }

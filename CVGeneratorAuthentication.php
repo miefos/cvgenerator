@@ -10,26 +10,26 @@ class CVGeneratorAuthentication
     {
         global $wpdb;
 	    add_shortcode( 'register_or_login', [$this, 'cv_generator_register_login_shortcode_html'] );
-        add_action('activate_' . CVGEN_PLUGIN_NAME, [$this, 'onActivate']);
 
         $this->nonce_name = 'wp_rest';
-	    $this->table_name_otp = $wpdb->prefix . 'cv_generator_otp';
         $this->api_endpoint_verify_email_and_send_otp = ['cv_generator/auth/', 'send_otp'];
         $this->api_endpoint_verify_otp = ['cv_generator/auth/', 'attempt_otp'];
 
         // max 6 auth related requests per 60 seconds
-        $this->max_auth_attempts = 6;
+        $this->max_auth_attempts = 20;
         $this->throttle_time = 60;
 
         // register REST API endpoints
 	    add_action( 'rest_api_init', function () {
 		    register_rest_route( $this->api_endpoint_verify_email_and_send_otp[0], $this->api_endpoint_verify_email_and_send_otp[1], array(
 			    'methods' => 'POST',
+                'permission_callback' => '__return_true',
 			    'callback' => [$this, 'validate_email_and_send_otp'],
 		    ) );
 
 		    register_rest_route( $this->api_endpoint_verify_otp[0], $this->api_endpoint_verify_otp[1], array(
 			    'methods' => 'POST',
+                'permission_callback' => '__return_true',
 			    'callback' => [$this, 'validate_otp_and_login'],
 		    ) );
 	    } );
@@ -63,12 +63,13 @@ class CVGeneratorAuthentication
                   'verify_otp' =>  get_rest_url() . $this->api_endpoint_verify_otp[0] . $this->api_endpoint_verify_otp[1],
                 ],
                 'translations' => [
-	                'email_label' => __('Email', 'cv_generator'),
-	                'wait_until_can_be_resent' => __('You can resend code in ', 'cv_generator'),
-	                'resend_label' => __('Resend code', 'cv_generator'),
-	                'otp_label' => __('Received code', 'cv_generator'),
-	                'submit_email' => __('Send OTP code', 'cv_generator'),
-	                'submit_attempt_email_otp' => esc_attr__('Authenticate', 'cv_generator'),
+	                'loginOrRegisterTitle' => __('Join', 'cv-generator'),
+	                'email_label' => __('Email', 'cv-generator'),
+	                'wait_until_can_be_resent' => __('You can resend code in ', 'cv-generator'),
+	                'resend_label' => __('Resend code', 'cv-generator'),
+	                'otp_label' => __('Received code', 'cv-generator'),
+	                'submit_email' => __('Login or Register', 'cv-generator'),
+	                'submit_attempt_email_otp' => __('Authenticate', 'cv-generator'),
                 ]
             ]
 	    ];
@@ -76,7 +77,7 @@ class CVGeneratorAuthentication
 
     function validate_otp_and_login($data) {
 	    if (!$this->throttle_check()) {
-		    return ['status' => "fail", 'msg' => __('Too many requests. Please try again later.', 'cv_generator')];
+		    return ['status' => "fail", 'msg' => __('Too many requests. Please try again later.', 'cv-generator')];
 	    }
 
 	    if ($result = $this->nonce_or_email_invalid($data)) {
@@ -89,10 +90,10 @@ class CVGeneratorAuthentication
         $otp = $data['otp'];
         $otp = intval(substr($otp, 0, $this->otp_length));
         if (!$this->otp_valid($otp, $email)) {
-	        return ['status' => 'fail', 'msg' => __('OTP code is invalid', 'cv_generator')];
+	        return ['status' => 'fail', 'msg' => __('OTP code is invalid', 'cv-generator')];
         }
 
-        return ['status' => 'ok', 'msg' => __('Authentication successful', 'cv_generator')];
+        return ['status' => 'ok', 'msg' => __('Authentication successful', 'cv-generator')];
     }
 
 	function otp_valid($otp, $email) {
@@ -103,10 +104,11 @@ class CVGeneratorAuthentication
 		}
 
         global $wpdb;
+        $table_name = $wpdb->prefix . 'cv_generator_otp';
 
 		$query = $wpdb->prepare(
 			"SELECT otp.otp, otp.ID, otp.user_id
-         FROM $this->table_name_otp as otp
+         FROM $table_name as otp
          WHERE 
              otp.otp = %d AND 
              otp.used_at IS NULL AND
@@ -122,7 +124,7 @@ class CVGeneratorAuthentication
             return false;
         }
 
-        $wpdb->update($this->table_name_otp, ['used_at' => cv_generator_mysql_time(time())], ['ID' => $row->ID]);
+        $wpdb->update($table_name, ['used_at' => cv_generator_mysql_time(time())], ['ID' => $row->ID]);
 
         wp_set_current_user($user_id);
         wp_set_auth_cookie($user_id);
@@ -155,7 +157,7 @@ class CVGeneratorAuthentication
 
     function validate_email_and_send_otp($data) {
         if (!$this->throttle_check()) {
-	        return ['status' => "fail", 'msg' => __('Too many requests. Please try again later.', 'cv_generator')];
+	        return ['status' => "fail", 'msg' => __('Too many requests. Please try again later.', 'cv-generator')];
         }
 
         if ($result = $this->nonce_or_email_invalid($data)) {
@@ -168,7 +170,7 @@ class CVGeneratorAuthentication
 	    if ($result = $this->send_otp($email)) {
 		    return $result;
 	    } else {
-		    return ['status' => "fail", 'msg' => __("OTP code could not be sent. Please contact system administrator.", 'cv_generator')];
+		    return ['status' => "fail", 'msg' => __("OTP code could not be sent. Please contact system administrator.", 'cv-generator')];
         }
     }
 
@@ -185,24 +187,24 @@ class CVGeneratorAuthentication
 	    $email = is_email(sanitize_email($email));
 	    $user_id = get_user_by('email', $email)->ID;
 	    if (!$user_id) {
-		    return ['status' => "fail", 'msg' => __("Email is not registered. Please contact system administrator.", 'cv_generator')];
+		    return ['status' => "fail", 'msg' => __("Email is not registered. Please contact system administrator.", 'cv-generator')];
 	    }
 
 	    if (!($otp = $this->insert_new_otp($user_id))) {
-		    return ['status' => "fail", 'msg' => __("Error generating OTP code. Please contact system administrator.", 'cv_generator')];
+		    return ['status' => "fail", 'msg' => __("Error generating OTP code. Please contact system administrator.", 'cv-generator')];
         }
 
-	    if ($this->sendEmail($email, __("Login attempt", 'cv_generator'), __("Someone tried to login. Your OTP code is ", 'cv_generator') . "<br /><h2 style='letter-spacing: 2px;'>" . $otp . "</h2>")) {
-		    return ['status' => 'ok', 'msg' => __("Login attempt, mail sent", "cv_generator")];
+	    if ($this->sendEmail($email, __("Someone tried to login in your account", 'cv-generator'), __("Someone tried to login. Your OTP code is ", 'cv-generator') . "<br /><h2 style='letter-spacing: 2px;'>" . $otp . "</h2>")) {
+		    return ['status' => 'ok', 'msg' => __("OTP code sent to your email", "cv-generator")];
 	    } else {
-		    return ['status' => 'fail', 'msg' => __("Error sending OTP code. Please contact system administrator.", "cv_generator")];
+		    return ['status' => 'fail', 'msg' => __("Error sending OTP code. Please contact system administrator.", "cv-generator")];
 	    }
     }
 
     function register_user_and_send_otp($email) {
 	    $email = is_email(sanitize_email($email));
         if (email_exists($email)) {
-	        return ['status' => "fail", 'msg' => __("Email already registered. Please contact system administrator.", 'cv_generator')];
+	        return ['status' => "fail", 'msg' => __("Email already registered. Please contact system administrator.", 'cv-generator')];
         }
 
 	    $username = sanitize_user($this->get_random_unique_username($email));
@@ -211,16 +213,16 @@ class CVGeneratorAuthentication
 	    $user_id = wp_create_user($username, $pass, $email);
 
         if (!($otp = $this->insert_new_otp($user_id))) {
-	        return ['status' => "fail", 'msg' => __("Error generating OTP code. Please contact system administrator.", 'cv_generator')];
+	        return ['status' => "fail", 'msg' => __("Error generating OTP code. Please contact system administrator.", 'cv-generator')];
         }
 
 	    if (is_wp_error($user_id)) {
-		    return ['status' => "fail", 'msg' => __("Error registering your user. Please contact system administrator.", 'cv_generator')];
+		    return ['status' => "fail", 'msg' => __("Error registering your user. Please contact system administrator.", 'cv-generator')];
 	    } else {
-		    if ($this->sendEmail($email, __("Registration successful", 'cv_generator'), __("The registration is successful. Your OTP code is ", 'cv_generator') . "<br /><h2 style='letter-spacing: 2px;'>" . $otp . "</h2>")) {
-			    return ['status' => "ok", 'msg' => __("OTP code sent to your email.", 'cv_generator')];
+		    if ($this->sendEmail($email, __("Registration successful", 'cv-generator'), __("The registration is successful. Your OTP code is ", 'cv-generator') . "<br /><h2 style='letter-spacing: 2px;'>" . $otp . "</h2>")) {
+			    return ['status' => "ok", 'msg' => __("OTP code sent to your email.", 'cv-generator')];
 		    } else {
-			    return ['status' => "fail", 'msg' => __("Error sending OTP code to your email. Please contact system administrator.", 'cv_generator')];
+			    return ['status' => "fail", 'msg' => __("Error sending OTP code to your email. Please contact system administrator.", 'cv-generator')];
 		    }
         }
     }
@@ -228,12 +230,12 @@ class CVGeneratorAuthentication
     function nonce_or_email_invalid($data) {
 	    // Validate nonce
 	    if (!isset($data[$this->nonce_name]) && !wp_verify_nonce($data[$this->nonce_name], $this->nonce_name)) {
-		    return ['status' => "fail", 'msg' => __('Invalid nonce', 'cv_generator')];
+		    return ['status' => "fail", 'msg' => __('Invalid nonce', 'cv-generator')];
 	    }
 
 	    // Set email
 	    if (!isset($data['email'])) {
-		    return ['status' => "fail", 'msg' => __('Email not set', 'cv_generator')];
+		    return ['status' => "fail", 'msg' => __('Email not set', 'cv-generator')];
 	    }
 
 	    $email = $data['email'];
@@ -241,7 +243,7 @@ class CVGeneratorAuthentication
 
 	    // validate email
 	    if (!$email) {
-		    return ['status' => "fail", 'msg' => __('Email format invalid', 'cv_generator')];
+		    return ['status' => "fail", 'msg' => __('Email format invalid', 'cv-generator')];
 	    }
 
         return false;
@@ -249,10 +251,11 @@ class CVGeneratorAuthentication
 
     function insert_new_otp($user_id) {
 	    global $wpdb;
+        $table_name = $wpdb->prefix . 'cv_generator_otp';
 
         // deactivate previous user's OTP codes
 	    if (get_user_by('ID', intval($user_id))) {
-		    if ($wpdb->update($this->table_name_otp, ['deactivated' => 1], ['user_id' => $user_id]) === false) {
+		    if ($wpdb->update($table_name, ['deactivated' => 1], ['user_id' => $user_id]) === false) {
 			    return false;
 		    }
 	    }
@@ -266,7 +269,7 @@ class CVGeneratorAuthentication
 	        'user_id' => intval( $user_id )
         ];
 
-	    if ($wpdb->insert($this->table_name_otp, $data) !== 1) {
+	    if ($wpdb->insert($table_name, $data) !== 1) {
 		    return false;
 	    }
 
@@ -283,17 +286,18 @@ class CVGeneratorAuthentication
             if (!is_admin()) {
                 wp_enqueue_style("cv_generator_auth_frontend_style", plugin_dir_url(__FILE__) . 'dist-vue/assets/index.css', [], '1.0');
                 wp_enqueue_style("cv_generator_auth_frontend_style_primeflex", "https://unpkg.com/primeflex@^3/primeflex.css", [], '1.0');
-                wp_enqueue_script( "cv_generator_auth_frontend_react", plugin_dir_url( __FILE__ ) . 'dist-vue/assets/index.js');
+                wp_enqueue_script( "cv_generator_auth_frontend_vue", plugin_dir_url( __FILE__ ) . 'dist-vue/assets/index.js', [], '2.0');
             }
 
-            ob_start(); ?>
+            ob_start();
+            ?>
 
             <div class="flex justify-content-center flex-wrap" id="cv_generator" data-js="<?= esc_attr(wp_json_encode($this->data_to_javascript())) ?>"></div>
 
             <?php
             return ob_get_clean();
         } else {
-            return "<a href='" . wp_logout_url() . "'>" . __("Logout", "cv_generator") . "</a>";
+//            return "<a href='" . wp_logout_url() . "'>" . __("Logout", "cv_generator") . "</a>";
         }
     }
 
@@ -354,13 +358,14 @@ class CVGeneratorAuthentication
 	 *
 	 * @return void
 	 */
-	function onActivate() {
+	static function onActivate($abspath, $plugin_name) {
 		global $wpdb;
-		require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+		require_once($abspath . 'wp-admin/includes/upgrade.php');
+        $table_name = $wpdb->prefix . 'cv_generator_otp';
 
 		// create OTP table.
 		// user_id - used for existing users
-		dbDelta("CREATE TABLE $this->table_name_otp (
+		dbDelta("CREATE TABLE $table_name (
             id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
             user_id bigint(20) unsigned,
             otp int(6) NOT NULL,
@@ -374,10 +379,10 @@ class CVGeneratorAuthentication
 
 		// validate that tables were created
 		// if not present in db, then deactivate plugin and die with error
-		$table_show_otp = $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $this->table_name_otp ) );
+		$table_show_otp = $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $table_name ) );
 
-		if ($wpdb->get_var($table_show_otp) !== $this->table_name_otp) {
-			deactivate_plugins(CVGEN_PLUGIN_NAME);
+		if ($wpdb->get_var($table_show_otp) !== $table_name) {
+			deactivate_plugins($plugin_name);
 			$referer_url = wp_get_referer();
 			wp_die("There was error setting up the plugin. Plugin deactivated. <br /><a href='$referer_url'>Back</a>");
 		}

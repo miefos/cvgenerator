@@ -1,29 +1,36 @@
 <template>
-  <div class="flex flex-wrap row-gap-4">
-    <div class="surface-card shadow-2 border-round p-4 min-w-full">
+  <div class="m-2 lg:flex gap-2">
+    <div class="shadow-1 p-4 lg:flex-auto lg:justify-content-center">
       <div class="text-3xl font-medium text-900 mb-2">{{ data.translations.accessStatus }}</div>
       <div v-if="leftPaidMinutes" class="">
-        {{ data.translations.youHavePaidUntil }} {{ addMinutesToCurrentTime(leftPaidMinutes) }}
+        <div>
+          {{ data.translations.youHavePaidUntil }} {{ addMinutesToCurrentTime(leftPaidMinutes) }}
+        </div>
+        <a target="_blank" :href="data.api.download_cv">
+          <Button :label="data.translations.downloadCV" icon="pi pi-download" />
+        </a>
       </div>
       <div v-else class="">
         <p>{{ data.translations.youHaveNotPaid }}</p>
         <p>{{ data.translations.youCanBuyTheAccessToTheCVFor }}</p>
         <div>
-          <Button v-if="!leftPaidMinutes" class="mt-2" :label="data.translations.buy" @click="pay" icon="pi pi-credit-card" />
+          <Button class="mt-2" :label="data.translations.buy" @click="pay" icon="pi pi-credit-card" />
         </div>
       </div>
     </div>
-      <div class="shadow-2 border-round p-4 min-w-full">
-        <div class="text-3xl font-medium text-900 mb-2">{{ data.translations.cvPreview }}</div>
-        <div class="">
-          PDF
-        </div>
+    <div class="shadow-1 p-4 lg:flex-auto lg:justify-content-center">
+      <div class="text-3xl font-medium text-900 mb-2">{{ data.translations.cvPreview }}</div>
+      <div style="width: 500px; height: 300px; overflow-y: scroll; max-width: 100%;">
+        <Image :src="data.api.get_cv_preview" alt="Image" width="500" />
       </div>
+      <Message class="scalein animation-ease-in-out animation-duration-1000" v-if="!data.left_minutes_for_payment" severity="info">{{ data.translations.youHaveNotPaid }}</Message>
+    </div>
   </div>
 </template>
 
 <script>
 import dayjs from "dayjs";
+import {mapState} from "vuex";
 
 export default {
   name: "Home",
@@ -59,4 +66,5 @@ export default {
 
 <script setup>
 import Button from "primevue/button";
+import Image from "primevue/image";
 </script>

@@ -12,6 +12,7 @@ import store from './store'
 document.addEventListener("DOMContentLoaded", function () {
   const rootElementId = "cv_generator"
   const data = JSON.parse(document.getElementById(rootElementId).dataset.js)
+  store.commit('setGeneralData', data)
   const app = createApp(App, {...data})
 
   app.use(PrimeVue)

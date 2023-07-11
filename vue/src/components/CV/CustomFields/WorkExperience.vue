@@ -1,11 +1,14 @@
 <template>
-    <div v-for="(row, row_i) in fieldValue" class="my-2 p-4 grid bg-blue-100">
-      <template v-for="(innerField, field_i) in field.inner_fields" >
-        <MyField class="col-12" :class="field.extra_type !== 'education' ? (field_i > 3 ? 'lg:col-12' : 'lg:col-6') : 'lg:col-3'" :field="{...field}" :section="{...section}" :innerField="{...innerField}" :innerFieldRowId="row_i" :data="{...data}"/>
-      </template>
-      <div class="col-3 relative" style="min-height: 40px;">
-        <Button :label="data.translations.removeRow" class="w-auto p-button-text absolute" style="bottom: 8px;" @click="() => removeRow(row_i)"></Button>
+    <div v-for="(row, row_i) in fieldValue" class="my-2 p-4 grid bg-blue-100 ml-0 mr-0">
+      <div class="col-12 flex">
+        <Button :label="data.translations.removeRow" class="w-auto p-button-text ml-auto" @click="() => removeRow(row_i)"></Button>
       </div>
+      <template v-for="(innerField, field_i) in field.inner_fields" >
+        <MyField v-if="field_i === 0 || field_i === 1" class="col-12" :field="{...field}" :section="{...section}" :innerField="{...innerField}" :innerFieldRowId="row_i" :data="{...data}"/>
+        <MyField v-else-if="field_i === 2" class="col-12" :field="{...field}" :section="{...section}" :innerField="{...innerField}" :innerFieldRowId="row_i" :data="{...data}"/>
+        <MyField v-else-if="field_i === 5" class="col-12" :field="{...field}" :section="{...section}" :innerField="{...innerField}" :innerFieldRowId="row_i" :data="{...data}"/>
+        <MyField v-else class="col-12 lg:col-6" :field="{...field}" :section="{...section}" :innerField="{...innerField}" :innerFieldRowId="row_i" :data="{...data}"/>
+      </template>
     </div>
   <Button :label="data.translations.addRow" class="p-button-text w-auto" @click="addNewRow"></Button>
 </template>

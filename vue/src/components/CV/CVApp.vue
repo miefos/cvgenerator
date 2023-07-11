@@ -13,12 +13,9 @@
 
 <script>
 import Navigation from "@/components/CV/Components/Navigation.vue";
-import Home from "@/components/CV/Pages/Home.vue";
-import EditCV from "@/components/CV/Pages/EditCV.vue";
-import DownloadCV from "@/components/CV/Pages/DownloadCV.vue";
 export default {
   name: "CV",
-  components: {DownloadCV, EditCV, Home, Navigation},
+  components: {Navigation},
   props: {data: {type: Object, required: true}},
   data() {
     return {

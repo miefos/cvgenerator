@@ -16,7 +16,7 @@
 	</style>
 </head>
 <body>
-	<div style="margin-top: 5%; margin-left: auto; margin-right: auto; width: 50%; background-color: #fefefe; ">
+	<div style="margin-top: 5%; margin-left: auto; margin-right: auto; max-width: 800px; background-color: #fefefe; ">
 		<div style="background-color: #557da1; width: 100%;">
 			<h1 style="padding: 30px 20px;color: white; ">
 				<?= $subject; ?>
